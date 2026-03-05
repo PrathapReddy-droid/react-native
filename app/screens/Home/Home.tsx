@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, ScrollView, Image,TouchableOpacity,TextInput } from 'react-native'
+import { View, Text, ScrollView, Image,TouchableOpacity,TextInput, Linking, StyleSheet } from 'react-native'
 import {  useTheme,useRoute, useFocusEffect } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { IMAGES } from '../../constants/Images';
@@ -16,141 +16,10 @@ import StopWatch2 from '../../components/StopWatch2';
 import Swiper from 'react-native-swiper';
 import { addTowishList } from '../../redux/reducer/wishListReducer';
 import { abs2Databanner, absDatabanner, brandbanner, HomeBanner } from '../../Api/Banner';
-import { productList } from '../../Api/Product';
+import { productList, VideoApi } from '../../Api/Product';
+import { WebView } from 'react-native-webview';
 
-// const  bannerData = [
-//     {
-//         image:IMAGES.banner1,
-//         title:"AirPods",
-//         text:"2nd generation",
-//         price:"$1259.00*",
-//         bottom:false
-//     },
-//     {
-//         image:IMAGES.banner3,
-//         title:"Shoes",
-//         text:"1nd generation",
-//         price:"$125.00*",
-//         bottom:true
-//     },
-//     {
-//         image:IMAGES.banner2,
-//         title:"AirPods",
-//         text:"3nd generation",
-//         price:"$1029.00*",
-//         bottom:true
-//     },
-// ]
 
-const PopoulerData = [
-    {
-        title: "Deal of the day",
-    },
-    {
-        title: "Hot Deals",
-        image:true
-    },
-    {
-        title: "Best Sellers",
-    },
-    {
-        title: "New Arrivals",
-    },
-    {
-        title: "Deal of the day",
-    },
-    {
-        title: "Hot Deals",
-        image:true
-    },
-    {
-        title: "Best Sellers",
-    },
-    {
-        title: "New Arrivals",
-    },
-]
-
-// const brandData = [
-//     {
-//         title:'Mobiles',
-//         image:IMAGES.item9
-//     },
-//     {
-//         title:'Electronics',
-//         image:IMAGES.item10
-//     },
-//     {
-//         title:'Camera',
-//         image:IMAGES.item11
-//     },
-//     {
-//         title:'Headphone',
-//         image:IMAGES.item12
-//     },
-//     {
-//         title:'TVs & LED',
-//         image:IMAGES.item13
-//     },
-//     {
-//         title:'Furniture',
-//         image:IMAGES.item14
-//     },
-//     {
-//         title:'Mobiles',
-//         image:IMAGES.item9
-//     },
-//     {
-//         title:'Electronics',
-//         image:IMAGES.item10
-//     },
-//     {
-//         title:'Camera',
-//         image:IMAGES.item11
-//     },
-//     {
-//         title:'Headphone',
-//         image:IMAGES.item12
-//     },
-//     {
-//         title:'TVs & LED',
-//         image:IMAGES.item13
-//     },
-//     {
-//         title:'Furniture',
-//         image:IMAGES.item14
-//     },
-//   ]
-
-// const absData = [
-//     {
-//         image: IMAGES.ads3,
-//     },
-//     {
-//         image: IMAGES.ads2,
-//     },
-//     {
-//         image: IMAGES.ads3,
-//     },
-//     {
-//         image: IMAGES.ads2,
-//     },
-// ]
-
-// const abs2Data = [
-//     {
-//         image: IMAGES.ads6,
-//     },
-//     {
-//         image: IMAGES.ads7,
-//     },
-//     {
-//         image: IMAGES.ads6,
-//     },
-//     {
-//         image: IMAGES.ads7,
-//     },
-// ]
 
 const abs3Data = [
     {
@@ -165,21 +34,13 @@ const abs3Data = [
 ]
 
 const offerData = [
-    {
-        image:IMAGES.deliverytruck,
-        title:"Free Shipping & Returns",
-        text:"For all orders over $99",
-    },
+
     {
         image:IMAGES.check3,
         title:"Secure Payment",
         text:"We ensure secure payment",
     },
-    {
-        image:IMAGES.savemoney,
-        title:"Money Back Guarantee",
-        text:"Any back within 30 days",
-    },
+
     {
         image:IMAGES.technicalsupport,
         title:"Customer Support",
@@ -192,246 +53,6 @@ const offerData = [
     },
 ]
 
-// const ArrivalData = [
-//     {
-//         image:IMAGES.item15,
-//         title: "Fashion",
-//     },
-//     {
-//         image:IMAGES.item16,
-//         title: "Beauty",
-//     },
-//     {
-//         image:IMAGES.item17,
-//         title: "Home",
-//     },
-//     {
-//         image:IMAGES.item20,
-//         title: "phone",
-//     },
-//     {
-//         image:IMAGES.item15,
-//         title: "Fashion",
-//     },
-//     {
-//         image:IMAGES.item16,
-//         title: "Beauty",
-//     },
-//     {
-//         image:IMAGES.item17,
-//         title: "Home",
-//     },
-//     {
-//         image:IMAGES.item20,
-//         title: "phone",
-//     },
-// ]
-
-// const cardData =[
-//     {
-//         id:"0",
-//         image:IMAGES.item1,
-//         title:"APPLE iPhone 14 (Bluetooth)",
-//         price:"$199",
-//         discount:"$112",
-//         offer:"70% OFF",
-//         brand:"Apple",
-//         color:false,
-//         hascolor:true
-//     },
-//     {
-//         id:"1",
-//         image:IMAGES.item2,
-//         title:"APPLE iPhone 11 (Bluetooth)",
-//         price:"$149",
-//         discount:"$114",
-//         offer:"50% OFF",
-//         brand:"Apple",
-//         color:false,
-//        hascolor:true
-//     },
-//     {
-//         id:"2",
-//         image:IMAGES.item1,
-//         title:"APPLE iPhone 13 (Bluetooth)",
-//         price:"$299",
-//         discount:"$116",
-//         offer:"70% OFF",
-//         color:false,
-//         brand:"Apple",
-//         hascolor:true
-//     },
-//     {
-//         id:"3",
-//         image:IMAGES.item2,
-//         title:"APPLE iPhone 15 (Bluetooth)",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         color:true,
-//         brand:"Apple",
-//         hascolor:true
-//     },
-// ]
-
-// const card2Data =[
-//     {
-//         id:"4",
-//         image:IMAGES.item3,
-//         title:"LG TurboWash Washing",
-//         price:"$199",
-//         discount:"$112",
-//         offer:"70% OFF",
-//         brand:"OLG",
-//         //color:false,
-//         hascolor:true
-//     },
-//     {
-//         id:"5",
-//         image:IMAGES.item4,
-//         title:"KitchenAid 9-Cup Food",
-//         price:"$149",
-//         discount:"$114",
-//         offer:"50% OFF",
-//         brand:"Apple",
-//         //color:false,
-//         hascolor:true
-//     },
-//     {
-//         id:"6",
-//         image:IMAGES.item5,
-//         title:"KitchenAid 9-mixer Food",
-//         price:"$299",
-//         discount:"$116",
-//         offer:"70% OFF",
-//         //color:false,
-//         brand:"OLG",
-//         hascolor:true
-//     },
-//     {
-//         id:"7",
-//         image:IMAGES.item1,
-//         title:"APPLE iPhone 15 (Bluetooth)",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         //color:true,
-//         brand:"Apple",
-//         hascolor:true
-//     },
-// ]
-
-// const card3Data =[
-//     {
-//         id:"8",
-//         image:IMAGES.item01,
-//         title:"Slim Leather Bifold Wallet",
-//         price:"$199",
-//         discount:"$112",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"9",
-//         image:IMAGES.item02,
-//         title:"Denim skinny fit jeans and ",
-//         price:"$149",
-//         discount:"$114",
-//         offer:"50% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"10",
-//         image:IMAGES.item03,
-//         title:"Cuisinart Compact 2-Slice for",
-//         price:"$299",
-//         discount:"$116",
-//         offer:"70% OFF",
-//         color:false,
-//         hascolor:true
-//     },
-//     {
-//         id:"11",
-//         image:IMAGES.item04,
-//         title:"Sony Bravia OLED TV",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"12",
-//         image:IMAGES.item05,
-//         title:"Polka dot wrap blouse dress",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"13",
-//         image:IMAGES.item06,
-//         title:"Pleated high-waisted is",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"14",
-//         image:IMAGES.item07,
-//         title:"LG TurboWash Washing for",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"15",
-//         image:IMAGES.item08,
-//         title:"Ergonomic Office Chair",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"16",
-//         image:IMAGES.item09,
-//         title:"APPLE iPhone 14 (Bluetooth)",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"17",
-//         image:IMAGES.item010,
-//         title:"KitchenAid 9-Cup Food and",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"18",
-//         image:IMAGES.item011,
-//         title:"Engraved Metal Money is",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-//     {
-//         id:"19",
-//         image:IMAGES.item012,
-//         title:"OnePlus Bullets EyeBuds",
-//         price:"$99",
-//         discount:"$118",
-//         offer:"70% OFF",
-//         hascolor:true
-//     },
-// ]
 
 const swiperimageData = [
     {
@@ -467,7 +88,6 @@ const Home = ({navigation} : HomeScreenProps) => {
 
     const [Select, setSelect] = useState(offerData[0]);
 
-    const [currentSlide, setCurrentSlide] = useState(0);
     const [bannerData, setbannerData] = useState([])
     const [brandData,setbrandData] = useState([])
     const [absData,setabsData] = useState([])
@@ -475,6 +95,7 @@ const Home = ({navigation} : HomeScreenProps) => {
 const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
 const [selectedArrivalId, setSelectedArrivalId] = useState<string | null>(null);
 const [selectedArrivalTitle,setArrivalTitle] = useState<string | null>(null);
+const [videoData, setVideoData] = useState<any[]>([]);
 
 const [selectedBrandTitle, setSelectedBrandTitle] = useState<string | null>(null);
 const [card2Data,setcard2Data] = useState([])
@@ -527,6 +148,15 @@ setbannerData(bannerData)
         abs2Databanner().then((data)=>{
             setabs2Data(data)
         })
+  VideoApi()
+    .then((result: any) => {
+      if (result?.success && result?.data) {
+        setVideoData(result.data); // set state
+      }
+    })
+    .catch((error) => {
+      console.log("Error fetching videos:", error);
+    });
 
 
     
@@ -560,7 +190,7 @@ setbannerData(bannerData)
                 <View style={{height:60,backgroundColor:COLORS.primary}}>
                     <View style={[GlobalStyleSheet.container,{paddingHorizontal:20}]}>
                         <View style={[GlobalStyleSheet.row,{alignItems:'center',justifyContent:'space-between'}]}>
-                            <View style={{flexDirection:'row',alignItems:'center',gap:10}}>
+                            <View style={{flexDirection:'row',alignItems:'center',gap:-5}}>
                                 <TouchableOpacity
                                     style={{margin:5}}
                                     onPress={() => navigation.openDrawer()}
@@ -570,10 +200,15 @@ setbannerData(bannerData)
                                         source={IMAGES.grid5}
                                     />
                                 </TouchableOpacity>
-                                <Image
-                                    style={{resizeMode:'contain',width:114,height:25}}
-                                    source={IMAGES.appname}
-                                />
+                           <Image
+  source={IMAGES.appname}
+  style={{
+    width: 170,          // ⬆️ bigger
+    height: 50,          // ⬆️ bigger
+    backgroundColor: 'transparent', // ✅ removes style-level background
+  }}
+/>
+
                             </View>
                             <View style={{flexDirection:'row',alignItems:'center'}}>
                                 <TouchableOpacity
@@ -655,41 +290,7 @@ onPress={() => navigation.navigate('Products', {
                 </View>
 
 
-               { /*-------------------------------upper seller------------------------*\}
-                {/* <View style={{height:40,backgroundColor:theme.dark ? "rgba(255,255,255,0.2)" :colors.card,marginBottom:10}}>
-                    <View style={[GlobalStyleSheet.container,{padding:10,paddingHorizontal:0}]}>
-                        <View>
-                            <ScrollView
-                                horizontal
-                                contentContainerStyle={{paddingHorizontal:20,flexGrow:1}}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, }}>
-                                    {PopoulerData.map((data:any,index) => {
-                                        return(
-                                            <TouchableOpacity
-                                                onPress={() => navigation.navigate('Products')} 
-                                                key={index}
-                                            >
-                                                <View style={{flexDirection:'row',alignItems:'center',gap:5}}>
-                                                    {data.image ?
-                                                        <Image
-                                                            style={{height:16,width:16,resizeMode:'contain'}}
-                                                            source={IMAGES.fire}
-                                                        />
-                                                        :
-                                                        null
-                                                    }
-                                                    <Text style={[FONTS.fontMedium,{fontSize:13,color:colors.title}]}>{data.title}</Text>
-                                                </View>
-                                            </TouchableOpacity>
-                                        )
-                                    })}
-                                </View>
-                            </ScrollView>
-                        </View>
-                    </View>
-                </View> */}
+        
                 <Swiper
                     autoplay={true}
                     autoplayTimeout={5}
@@ -722,15 +323,7 @@ onPress={() => navigation.navigate('Products', {
         resizeMode="cover"
       />
 
-      {/* GRADIENT OVERLAY */}
-      {/* <LinearGradient
-        // colors={['rgba(0,26,68,0.7)', 'rgba(30,81,165,0.7)']}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 0, y: 0 }}
-        style={{ position: 'absolute', width: '100%', height: '100%' }}
-      /> */}
-
-      {/* CONTENT OVER IMAGE */}
+ 
       <View
         style={[
           GlobalStyleSheet.container,
@@ -812,7 +405,7 @@ onPress={() => navigation.navigate('Products', {
                                 return (
                                     <View style={[{ marginBottom: 0, width: SIZES.width > SIZES.container ? SIZES.container / 3 : SIZES.width / 2.3 }]} key={index}>
                                         <Cardstyle1
-                                            id={data.id}
+                                            id={data._id}
                                             title={data.name}
                                             image={data.image}
                                             price={data.price}
@@ -821,6 +414,7 @@ onPress={() => navigation.navigate('Products', {
                                             brand={data.brand}
                                             hascolor={data.hascolor}
                                             discount={data.discount}
+                                            data={data}
                                             rating={data.rating}
   onPress={() =>
     navigation.navigate('ProductsDetails', {
@@ -948,25 +542,18 @@ onPress={() => {
                     >
                         <View style={{flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
                             {card2Data.map((data:any, index:any) => {
+                                console.log(data._id,"=========================card2")
                                 return (
                                     <View style={[{ marginBottom: 0, width: SIZES.width > SIZES.container ? SIZES.container / 3 : SIZES.width / 2.3 }]} key={index}>
-                                        <Cardstyle1
-                                            id={data._id}
-                                            title={data.name}
-                                            image={data.images[0]}
-                                            price={data.price}
-                                            offer={data.oldPrice}
-                                            color={true}
-                                            brand={data.brand}
-                                            hascolor={true}
-                                            discount={data.discount}
-                                            rating={data.rating}
+                                  <Cardstyle1
+  product={data}               // ✅ FULL DATA OBJECT
   onPress={() =>
     navigation.navigate('ProductsDetails', {
-      product: data,
+      product: data,            // ✅ SAME FULL DATA
     })
-  }                                            onPress3={() => addItemToWishList(data)}
-                                        />
+  }
+  onPress3={() => addItemToWishList(data)}
+/>
                                     </View>
                                 )
                             })}
@@ -1161,39 +748,65 @@ onPress={() => {
                         </View>
                     </View>
                 </View> */}
-                <View style={[GlobalStyleSheet.container,{paddingHorizontal:20,backgroundColor:colors.card,borderBottomWidth:1,borderBottomColor:COLORS.primaryLight}]}>
-                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
-                        <Text style={[FONTS.fontMedium,{fontSize:18,color:colors.title}]}>Sponsored</Text>
-                        <Text style={[FONTS.fontRegular,{fontSize:13,color:COLORS.success}]}>Min. 30% Off</Text>
-                    </View>
-                </View> 
 
-                
-                <View style={[GlobalStyleSheet.container,{paddingHorizontal:20,backgroundColor:colors.card}]}>
-                    <View style={{ marginHorizontal: -20, marginVertical:10,}}>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{paddingHorizontal:15}}
-                        >
-                            {abs3Data.map((data, index) => {
-                                return (
-                                    <TouchableOpacity
-                                        activeOpacity={0.5}
-                                        onPress={() => navigation.navigate('Products')}   
-                                        key={index} 
-                                        style={{ marginHorizontal:5 }}
-                                    >
-                                        <Image
-                                            style={{ width: 170, height: 114,borderRadius:4}}
-                                            source={data.image}
-                                        />
-                                    </TouchableOpacity>
-                                )
-                            })}
-                        </ScrollView>
-                    </View>
-                </View>
+  {/* Header */}
+
+
+  {/* Videos */}
+ <View
+  style={[
+    GlobalStyleSheet.container,
+    {
+      paddingHorizontal: 20,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.primaryLight,
+      paddingVertical: 10,
+    },
+  ]}
+>
+  {/* Header */}
+  <View
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    }}
+  >
+    <Text style={[FONTS.fontMedium, { fontSize: 18, color: colors.title }]}>
+      Sponsored
+    </Text>
+    <Text style={[FONTS.fontRegular, { fontSize: 13, color: COLORS.success }]}>
+      Ads
+    </Text>
+  </View>
+
+  {/* Carousel */}
+{/* Video Carousel from API */}
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={{ paddingHorizontal: 5 }}
+>
+  {videoData.map((video, index) => (
+    <View style={styles.videoContainer} key={video._id || index}>
+      <WebView
+        style={styles.webview}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        source={{ uri: video.video_url }} // <-- use your API video link
+      />
+    </View>
+  ))}
+</ScrollView>
+
+</View>
+
+
+
+
+             
                 <View style={[GlobalStyleSheet.container,{paddingHorizontal:0,paddingTop:15}]}>
                     <ScrollView
                         horizontal
@@ -1251,28 +864,68 @@ onPress={() => {
                         {card3Data.map((data:any, index) => {
                             return (
                                 <View style={[GlobalStyleSheet.col50, { marginBottom: 0,paddingHorizontal:0 }]} key={index}>
-                                    <Cardstyle1
-                                            id={data._id}
-                                            title={data.name}
-                                            image={data.images[0]}
-                                            price={data.price}
-                                            offer={data.offer}
-                                            color={data.color}
-                                            brand={data.brand}
-                                            discount={data.discount}
-                                            hascolor={data.hascolor}
-
+  <Cardstyle1
+  product={data}               // ✅ FULL DATA OBJECT
   onPress={() =>
     navigation.navigate('ProductsDetails', {
-      product: data,
+      product: data,            // ✅ SAME FULL DATA
     })
-  }                                            onPress3={() => addItemToWishList(data)}
-                                        />
+  }
+  onPress3={() => addItemToWishList(data)}
+/>
+
                                 </View>
                             )
                         })}
                     </View>
                 </View>
+                 <View
+  style={[
+    GlobalStyleSheet.container,
+    {
+      paddingHorizontal: 20,
+      backgroundColor: colors.card,
+      borderBottomWidth: 1,
+      borderBottomColor: COLORS.primaryLight,
+      paddingVertical: 10,
+    },
+  ]}
+>
+  {/* Header */}
+  <View
+    style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 12,
+    }}
+  >
+    <Text style={[FONTS.fontMedium, { fontSize: 18, color: colors.title }]}>
+      Ads
+    </Text>
+    <Text style={[FONTS.fontRegular, { fontSize: 13, color: COLORS.success }]}>
+      Live.
+    </Text>
+  </View>
+
+  {/* Carousel */}
+<ScrollView
+  horizontal
+  showsHorizontalScrollIndicator={false}
+  contentContainerStyle={{ paddingHorizontal: 5 }}
+>
+  {videoData.map((video, index) => (
+    <View style={styles.videoContainer} key={video._id || index}>
+      <WebView
+        style={styles.webview}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        source={{ uri: video.live_link }} // <-- use your API video link
+      />
+    </View>
+  ))}
+</ScrollView>
+</View>
             </ScrollView>
             <BottomSheet2
                 ref={moresheet2}
@@ -1282,3 +935,17 @@ onPress={() => {
 };
 
 export default Home
+
+const styles = StyleSheet.create({
+  videoContainer: {
+    width: 200,       // width of each video
+    height: 120,      // height of each video
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginRight: 10,  // space between videos
+  },
+  webview: {
+    flex: 1,
+    borderRadius: 10,
+  },
+});

@@ -69,7 +69,7 @@ const ChooseLanguage = ({ navigation }: SplashScreenProps) => {
             },
           ]}
         >
-          Welcome to FizzFuzz
+          Welcome to FizzyFuzz
         </Text>
 
         <Text

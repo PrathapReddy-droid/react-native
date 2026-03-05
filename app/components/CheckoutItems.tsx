@@ -5,7 +5,7 @@ import FeatherIcon from 'react-native-vector-icons/Feather';
 import { useDispatch } from 'react-redux';
 import { FONTS } from '../constants/theme';
 import { decrementQuantity } from '../redux/reducer/cartReducer';
-import { incrementQuantity } from '../app/redux/reducer/cartReducer';
+import { incrementQuantity } from '../redux/reducer/cartReducer';
 
 const CheckoutItems = ({ productId, quantity }: any) => {
     const dispatch = useDispatch();

@@ -1,4 +1,3 @@
-// store/addressSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
@@ -16,8 +15,14 @@ const userSlice = createSlice({
     setselectedUser(state, action: PayloadAction<any>) {
       state.selectedUser = action.payload;
     },
+    hydrateUser(state, action: PayloadAction<any>) {
+      state.selectedUser = action.payload;
+    },
+    clearUser(state) {
+      state.selectedUser = null;
+    },
   },
 });
 
-export const { setselectedUser } = userSlice.actions;
+export const { setselectedUser, hydrateUser, clearUser } = userSlice.actions;
 export default userSlice.reducer;

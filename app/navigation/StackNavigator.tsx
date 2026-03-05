@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 import { RootStackParamList } from './RootStackParamList';
 import { StatusBar, View, Text, Platform } from 'react-native';
@@ -59,6 +59,7 @@ import Profile from '../screens/Profile/Profile';
 import AuthLoading from '../screens/Auth/AuthLoading';
 import MapAddressPicker from '../components/MapAddress/MapAddressPicker';
 import VerifyEmail from '../screens/Utils/VerifyEmail';
+import AuthModal from '../screens/Payment/AuthModel';
 
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -66,6 +67,8 @@ const StackNavigator = () => {
 
     const theme = useTheme();
  	const { colors } : {colors : any} = theme;
+	  const [modalVisible, setModalVisible] = useState(false);
+
 
     return (
 		<View style={{width : '100%',flex:1}}>
@@ -84,6 +87,7 @@ const StackNavigator = () => {
 				 <Stack.Screen name="ChooseLanguage" component={ChooseLanguage} />
 				 <Stack.Screen name="MapAddressPicker" component={MapAddressPicker} />
 				 <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
+	
 
 				 <Stack.Screen name="SignUp" component={SignUp} />
 				 <Stack.Screen name="AuthLoading" component={AuthLoading} />
@@ -140,6 +144,10 @@ const StackNavigator = () => {
 				<Stack.Screen name="Tables" component={Tables} />
 				<Stack.Screen name="Toggles" component={Toggles} />
 			</Stack.Navigator>
+						       <AuthModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}   // ✅ IMPORTANT
+      />
 		</View>
     )
 }

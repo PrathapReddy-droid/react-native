@@ -1,282 +1,167 @@
-import React, {  useState } from 'react';
-import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { COLORS, FONTS } from '../../constants/theme';
-import { IMAGES } from '../../constants/Images';
 import Button from '../Button/Button';
-import { useNavigation, useTheme } from '@react-navigation/native';
-import MultiSlider from '@ptomasroos/react-native-multi-slider';
 import ButtonOutline from '../Button/ButtonOutline';
-//import Slider from '@react-native-community/slider';
-
-
-const brandData = [
-  {
-      title:'Nike',
-      image:IMAGES.brand1
-  },
-  {
-      title:'Adidas',
-      image:IMAGES.brand2
-  },
-  {
-      title:'Reebok',
-      image:IMAGES.brand3
-  },
-  {
-      title:'Puma',
-      image:IMAGES.brand4
-  },
-  {
-      title:'Bata',
-      image:IMAGES.brand5
-  },
-  {
-      title:'Nike',
-      image:IMAGES.brand6
-  },
-  {
-      title:'Adidas',
-      image:IMAGES.brand7
-  },
-  {
-      title:'Reebok',
-      image:IMAGES.brand8
-  },
-  {
-      title:'Puma',
-      image:IMAGES.brand9
-  },
-  {
-      title:'Bata',
-      image:IMAGES.brand10
-  },
-]
+import { useTheme } from '@react-navigation/native';
+import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 type Props = {
-    sheetRef ?: any;
-}
+  sheetRef?: any;
+  products: any[]; // all products from API
+  onApplyFilters?: (filteredProducts: any[]) => void;
+};
 
-const FilterSheet2 = ({sheetRef} : Props) => {
-
+const FilterSheet2 = ({ sheetRef, products, onApplyFilters }: Props) => {
   const theme = useTheme();
-  const { colors } : {colors : any} = theme;
+  const { colors }: { colors: any } = theme;
 
-  const navigation = useNavigation();
+  const [selectedBrand, setSelectedBrand] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
+  const [multiSliderValue, setMultiSliderValue] = useState<[number, number]>([0, 1000]);
 
-  // const brandData = ["Adidas", "Reebok", "Zara", "Gucci", "Vogue"];
+  const [brandsData, setBrandsData] = useState<any[]>([]);
+  const [categoriesData, setCategoriesData] = useState<string[]>([]);
+  const [sizesData, setSizesData] = useState<string[]>([]);
 
-  // const [activeSize, setActiveSize] = useState(brandData[0]);
+  // Initialize filter data from products
+  useEffect(() => {
+    if (!products || products.length === 0) return;
 
-  const categoriesData = ["All", "Face Wash", "Cleanser", "Scrubs", "Makeup Remover", "Hand Cream",];
+    // Brands
+    const brands = Array.from(new Set(products.map(p => p.brand))).map(b => ({ title: b }));
+    setBrandsData(brands);
 
-  const [active1Size, setActive1Size] = useState(categoriesData[0]);
+    // Categories
+    const categories = Array.from(new Set(products.map(p => p.catName)));
+    setCategoriesData(['All', ...categories]);
 
-  const sizeData = ["S", "M", "L", "XL", "2XL"];
+    // Sizes (from variants)
+    const allSizes = products.flatMap(p => p.variants?.size || []);
+    const uniqueSizes = Array.from(new Set(allSizes));
+    setSizesData(uniqueSizes);
 
-  const [active2Size, setActive2Size] = useState(sizeData[0]);
+    // Price range
+    const prices = products.map(p => p.price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    setPriceRange([minPrice, maxPrice]);
+    setMultiSliderValue([minPrice, maxPrice]);
 
-  const [active3Size, setActive3Size] = useState(brandData[0]);
+    // Default brand
+    setSelectedBrand(brands[0]);
+  }, [products]);
 
-  const [multiSliderValue, setMultiSliderValue] = useState([200, 270])
+  // MultiSlider change
+  const multiSliderValuesChange = (values: any) => setMultiSliderValue(values);
 
-  const multiSliderValuesChange = (values:any) => setMultiSliderValue(values)
+  // Apply filters
+  const applyFilters = () => {
+    let filtered = [...products];
 
+    if (selectedBrand?.title) {
+      filtered = filtered.filter(p => p.brand === selectedBrand.title);
+    }
 
-  const [values, setValues] = useState<any>([0, 50]); // Initial values for the range
+    if (selectedCategory && selectedCategory !== 'All') {
+      filtered = filtered.filter(p => p.catName === selectedCategory);
+    }
 
-  const handleValuesChange = (newValues:any) => {
-    setValues(newValues);
+    if (selectedSize) {
+      filtered = filtered.filter(p => (p.variants?.size || []).includes(selectedSize));
+    }
+
+    if (multiSliderValue.length === 2) {
+      filtered = filtered.filter(
+        p => p.price >= multiSliderValue[0] && p.price <= multiSliderValue[1]
+      );
+    }
+
+    if (onApplyFilters) onApplyFilters(filtered);
+    sheetRef.current.close();
+  };
+
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedBrand(brandsData[0]);
+    setSelectedCategory('All');
+    setSelectedSize(null);
+    setMultiSliderValue(priceRange);
+    if (onApplyFilters) onApplyFilters(products);
+    sheetRef.current.close();
   };
 
   return (
-      <View style={[GlobalStyleSheet.container, { paddingTop: 0,backgroundColor:theme.dark ? colors.background :colors.card }]}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              borderBottomWidth: 1,
-              borderBottomColor: colors.border,
-              paddingBottom: 10,
-              paddingTop:10,
-              marginHorizontal: -15,
-              paddingHorizontal: 15
-            }}
-          >
-            <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 16 }]}>Filters</Text>
-            <TouchableOpacity
-              style={{ height: 38, width: 38, backgroundColor: colors.card, borderRadius: 38, alignItems: 'center', justifyContent: 'center' }}
-              onPress={() => sheetRef.current.close()}
-            >
-              <Image
-                style={{ width: 18, height: 18, resizeMode: 'contain', tintColor: colors.title }}
-                source={IMAGES.close}
-              />
-            </TouchableOpacity>
-          </View>
-          <ScrollView>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ ...FONTS.fontMedium, fontSize: 15, color: colors.title }}>Brand</Text>
-                <TouchableOpacity
-                    activeOpacity={0.5}
-                    onPress={() => sheetRef.current.close()}
-                >
-                  <Text style={{ ...FONTS.fontRegular, fontSize: 13, color:COLORS.primary }}>See All</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{marginTop:10,flexDirection:'row',flexWrap:'wrap',gap:10}}>
-                  {brandData.map((data:any,index) => {
-                      return(
-                        <TouchableOpacity activeOpacity={0.8}   onPress={() => setActive3Size(data)} key={index} style={{alignItems:'center'}}>
-                            <View 
-                              style={[{
-                                height:45,
-                                width:45,
-                                borderRadius:50,
-                                borderWidth:1,
-                                borderColor:COLORS.primaryLight,
-                                alignItems:'center',
-                                justifyContent:'center'
-                                },active3Size === data && {
-                                  borderColor:COLORS.primary
-                                }]}
-                              >
-                                <Image
-                                    style={{height:30,width:30,resizeMode:'contain',borderRadius:30}}
-                                    source={data.image}
-                                />
-                            </View>
-                            {/* <Text style={[FONTS.fontMedium,{fontSize:14,color:colors.title,marginTop:10}]}>{data.title}</Text> */}
-                        </TouchableOpacity>
-                      )
-                  })}
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ ...FONTS.fontMedium, fontSize: 15, color: colors.title }}>Categories:</Text>
-                <TouchableOpacity
-                    activeOpacity={0.5}
-                    onPress={() => sheetRef.current.close()}
-                >
-                  <Text style={{ ...FONTS.fontRegular, fontSize: 13, color:COLORS.primary }}>See All</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
-                {categoriesData.map((data, index) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => setActive1Size(data)}
-                      key={index}
-                      style={[{
-                        //backgroundColor:theme.dark ? 'rgba(255,255,255,0.10)': colors.background,
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        //borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor:COLORS.primaryLight,
-                        paddingHorizontal: 20,
-                        paddingVertical: 5,
-                        marginBottom: 5
-                      }, active1Size === data && {
-                        backgroundColor:COLORS.primary,
-                        borderColor: COLORS.primary,
-                      }]}
-                    >
-                      <Text style={[{ ...FONTS.fontMedium, fontSize: 13, color: colors.title }, active1Size === data && {  color:theme.dark ? COLORS.white : COLORS.white }]}>{data}</Text>
-                    </TouchableOpacity>
-                  )
-                })}
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ ...FONTS.fontMedium, fontSize: 15, color: colors.title }}>Size:</Text>
-                <TouchableOpacity
-                    activeOpacity={0.5}
-                    onPress={() => sheetRef.current.close()}
-                >
-                  <Text style={{ ...FONTS.fontRegular, fontSize: 13, color:COLORS.primary }}>See All</Text>
-                </TouchableOpacity>
-              </View>
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginTop: 10 }}>
-                {sizeData.map((data, index) => {
-                  return (
-                    <TouchableOpacity
-                      onPress={() => setActive2Size(data)}
-                      key={index}
-                      style={[{
-                        //backgroundColor:theme.dark ? 'rgba(255,255,255,0.10)': colors.background,
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        //borderRadius: 8,
-                        borderWidth: 1,
-                        borderColor: COLORS.primaryLight,
-                        paddingHorizontal: 20,
-                        paddingVertical: 5,
-                        marginBottom: 5,
-                      }, active2Size === data && {
-                        backgroundColor:COLORS.primary,
-                        borderColor: COLORS.primary,
-                      }]}
-                    >
-                      <Text style={[{ ...FONTS.fontMedium, fontSize: 13, color: colors.title }, active2Size === data && { color:theme.dark ? COLORS.white : COLORS.white }]}>{data}</Text>
-                    </TouchableOpacity>
-                  )
-                })}
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 }}>
-                <Text style={{ ...FONTS.fontMedium, fontSize: 15, color: colors.title }}>Price:</Text>
-              </View>
-              <View style={{ marginTop: 5, }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginBottom: 10 }}>
-                    <Text style={{ ...FONTS.fontMedium, fontSize: 12, color: colors.title, borderWidth:1,borderColor:COLORS.primaryLight, textAlign: 'center', paddingVertical: 5, paddingHorizontal: 10 }}>${multiSliderValue[0]} </Text>
-                    <Text style={{ ...FONTS.fontMedium, fontSize: 12, color: colors.title, borderWidth:1,borderColor:COLORS.primaryLight, textAlign: 'center', paddingVertical: 5, paddingHorizontal: 10 }}>${multiSliderValue[1]}</Text>
-                  </View>
-                  <MultiSlider
-                    values={[multiSliderValue[0], multiSliderValue[1]]}
-                    sliderLength={310}
-                    selectedStyle={{ backgroundColor: COLORS.primary, }}
-                    containerStyle={{ alignSelf: 'center', marginTop: -10 }}
-                    onValuesChange={multiSliderValuesChange}
-                    markerStyle={{
-                      // ...Platform.select({
-                      //   android: {
-                          height: 24,
-                          width: 24,
-                          borderRadius: 50,
-                          backgroundColor: COLORS.white,
-                          borderWidth: 2,
-                          borderColor: COLORS.primary
-                      //   }
-                      // })
-                    }}
-                    min={200}
-                    max={270}
-                    allowOverlap={false}
-                    minMarkerOverlapDistance={10}
-                  />
-              </View>
-              <View style={{ flexDirection: 'row', gap: 10, paddingRight: 10, marginTop: 15,marginBottom:50 }}>
-                <View style={{ width: '50%' }}>
-                  <ButtonOutline
-                    title={"Reset"}
-                    color={COLORS.primaryLight}
-                    text={COLORS.primary}
-                    onPress={() => sheetRef.current.close()}
-                  />
-                </View>
-                <View style={{ width: '50%' }}>
-                  <Button
-                    title={"Apply"}
-                    text={ COLORS.white}
-                    color={COLORS.primary}
-                    onPress={() => sheetRef.current.close()}
-                  />
-                </View>
-              </View>
-          </ScrollView>
+    <View style={[GlobalStyleSheet.container, { paddingTop: 0, backgroundColor: theme.dark ? colors.background : colors.card }]}>
+      {/* Header */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 10, paddingTop: 10, marginHorizontal: -15, paddingHorizontal: 15 }}>
+        <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 16 }]}>Filters</Text>
+        <TouchableOpacity style={{ height: 38, width: 38, backgroundColor: colors.card, borderRadius: 38, alignItems: 'center', justifyContent: 'center' }} onPress={() => sheetRef.current.close()}>
+          <Text style={{ color: colors.title, fontSize: 18 }}>✕</Text>
+        </TouchableOpacity>
       </View>
-  )
-}
 
-export default FilterSheet2
+      <ScrollView style={{ paddingHorizontal: 15 }}>
+        {/* Brand */}
+        <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 15, marginTop: 15 }]}>Brand</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+          {brandsData.map((b, i) => (
+            <TouchableOpacity key={i} onPress={() => setSelectedBrand(b)} style={{ paddingHorizontal: 15, paddingVertical: 8, borderWidth: 1, borderColor: selectedBrand?.title === b.title ? COLORS.primary : COLORS.primaryLight, borderRadius: 8 }}>
+              <Text style={{ color: selectedBrand?.title === b.title ? COLORS.primary : colors.title }}>{b.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Category */}
+        <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 15, marginTop: 15 }]}>Category</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+          {categoriesData.map((c, i) => (
+            <TouchableOpacity key={i} onPress={() => setSelectedCategory(c)} style={{ paddingHorizontal: 15, paddingVertical: 8, borderWidth: 1, borderColor: selectedCategory === c ? COLORS.primary : COLORS.primaryLight, borderRadius: 8 }}>
+              <Text style={{ color: selectedCategory === c ? COLORS.primary : colors.title }}>{c}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Size */}
+        <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 15, marginTop: 15 }]}>Size</Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+          {sizesData.map((s, i) => (
+            <TouchableOpacity key={i} onPress={() => setSelectedSize(s)} style={{ paddingHorizontal: 15, paddingVertical: 8, borderWidth: 1, borderColor: selectedSize === s ? COLORS.primary : COLORS.primaryLight, borderRadius: 8 }}>
+              <Text style={{ color: selectedSize === s ? COLORS.primary : colors.title }}>{s}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Price Slider */}
+        <Text style={[FONTS.fontMedium, { color: colors.title, fontSize: 15, marginTop: 15 }]}>Price</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+          <Text>${multiSliderValue[0]}</Text>
+          <Text>${multiSliderValue[1]}</Text>
+        </View>
+        <MultiSlider
+          values={[multiSliderValue[0], multiSliderValue[1]]}
+          sliderLength={300}
+          selectedStyle={{ backgroundColor: COLORS.primary }}
+          containerStyle={{ alignSelf: 'center', marginTop: 10 }}
+          onValuesChange={multiSliderValuesChange}
+          min={priceRange[0]}
+          max={priceRange[1]}
+          allowOverlap={false}
+          minMarkerOverlapDistance={10}
+          markerStyle={{ height: 24, width: 24, borderRadius: 50, backgroundColor: COLORS.white, borderWidth: 2, borderColor: COLORS.primary }}
+        />
+
+        {/* Buttons */}
+        <View style={{ flexDirection: 'row', gap: 10, marginVertical: 20 }}>
+          <ButtonOutline title="Reset" text={COLORS.primary} color={COLORS.primaryLight} onPress={resetFilters} />
+          <Button title="Apply" text={COLORS.white} color={COLORS.primary} onPress={applyFilters} />
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default FilterSheet2;

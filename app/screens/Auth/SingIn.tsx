@@ -18,8 +18,9 @@ import Button from '../../components/Button/Button';
 import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-simple-toast';
 import { getUserDetails, loginApi } from '../../Api/User';
-import { setselectedUser } from '../../redux/reducer/User';
+import { hydrateUser, setselectedUser } from '../../redux/reducer/User';
 import { useDispatch } from 'react-redux';
+import { saveUserToStorage } from '../../redux/reducer/userStorage';
 
 type SingInScreenProps = StackScreenProps<RootStackParamList, 'SingIn'>;
 
@@ -45,8 +46,10 @@ const dispatch = useDispatch()
       setLoading(true);
 
       await loginApi({email:email,password:password})
-      getUserDetails().then(data=>{
+      getUserDetails().then(async data=>{
        dispatch(setselectedUser(data.data)) 
+  await saveUserToStorage(data.data);
+
       })
 
       Toast.show('Login Successful', Toast.LONG);
@@ -182,7 +185,7 @@ const dispatch = useDispatch()
 
             <View style={{ paddingTop: 10 }}>
               <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>
-                By continuing, you agree to FizzFuzz's{' '}
+                By continuing, you agree to FizzyFuzz's{' '}
                 <Text style={[FONTS.fontSemiBold, { color: COLORS.primary }]}>
                   Terms of Use
                 </Text>

@@ -229,7 +229,7 @@ navigation.navigate('VerifyEmail', { email });
 
             <View style={{ paddingTop: 10 }}>
               <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>
-                By continuing, you agree to FizzFuzz's{' '}
+                By continuing, you agree to FizzyFuzz's{' '}
                 <Text style={[FONTS.fontSemiBold, { color: COLORS.primary }]}>
                   Terms of Use
                 </Text>

@@ -22,33 +22,28 @@ const Myorder = ({ navigation }: MyorderScreenProps) => {
   const [activeFilter, setActiveFilter] = useState('all'); // Track active filter
 useEffect(() => {
   getOrder().then((res) => {
-    const mappedData = res.data.map((order) => {
-      const product = order.products && order.products.length > 0
-        ? order.products[0]
-        : null;
-        console.log(product,order,"==============================>>>>>")
+const mappedData = res.data.flatMap((order) => {
+  return order.products.map((product) => ({
+    title: product.productTitle,
+    price: `₹${product.price}`,
+    delevery:
+      order.payment_status === 'CASH ON DELIVERY'
+        ? 'Cash on Delivery'
+        : 'Paid',
 
-      return {
-        title: product ? product.productTitle : '',
-        price: product ? `₹${product.price}` : '',
-        delevery:
-          order.payment_status === 'CASH ON DELIVERY'
-            ? 'Cash on Delivery'
-            : 'Paid',
+    image: product.image,
 
-        // ✅ send image ONLY if it exists
-         image:product.image,
+    offer: '',
+    brand: '',
+    btntitle: 'Track Order',
+    trackorder: order.order_status === 'confirm',
+    completed: order.order_status === 'completed',
+    EditReview: false,
+    status:
+      order.order_status === 'confirm' ? 'ongoing' : 'completed',
+  }));
+});
 
-        offer: '',
-        brand: '',
-        btntitle: 'Track Order',
-        trackorder: order.order_status === 'confirm',
-        completed: order.order_status === 'completed',
-        EditReview: false,
-        status:
-          order.order_status === 'confirm' ? 'ongoing' : 'completed',
-      };
-    });
 
     console.log('Mapped Orders:', mappedData);
     setOrderData(mappedData);

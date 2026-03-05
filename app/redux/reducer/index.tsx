@@ -4,13 +4,15 @@ import cartReducer from './cartReducer';
 import wishListReducer from './wishListReducer';
 import addressReducer from './addressSlice'
 import userReducer from './User'
+import paymentReducer from './paymentReducer'
 
 const rootReducer = combineReducers({
     drawer: drawerReducer,
     cart: cartReducer,
     wishList : wishListReducer,
     address: addressReducer,
-    user: userReducer
+    user: userReducer,
+    payment:paymentReducer
 
 });
 

@@ -1,0 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { PersistConfig } from 'redux-persist';
+
+export const userPersistConfig: PersistConfig<any> = {
+  key: 'user',
+  storage: AsyncStorage,
+  whitelist: ['selectedUser'],
+};

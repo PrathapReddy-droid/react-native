@@ -111,7 +111,7 @@ const Header = ({title, leftIcon, leftAction,transparent,productId,titleLeft,tit
                                 source={IMAGES.mycart}
                             />
                             <View style={[GlobalStyleSheet.notification, { position: 'absolute', right: 0, bottom: 20,backgroundColor:'#FFE019' }]}>
-                                <Text style={{ ...FONTS.fontRegular, fontSize: 10, color:COLORS.title }}>14</Text>
+                                <Text style={{ ...FONTS.fontRegular, fontSize: 10, color:COLORS.title }}>{cart.length}</Text>
                             </View>
                         </TouchableOpacity>
                     }

@@ -1,254 +1,208 @@
-import { View, Text,  ScrollView, TouchableOpacity } from 'react-native'
-import React, { useState } from 'react'
 import { useTheme } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  LayoutAnimation,
+  Platform,
+  UIManager,
+  TextInput,
+  Alert,
+} from 'react-native';
 import Header from '../../layout/Header';
-import { IMAGES } from '../../constants/Images';
+import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import Cardstyle2 from '../../components/Card/Cardstyle2';
-import { COLORS, FONTS } from '../../constants/theme';
-import Input from '../../components/Input/Input';
-import Button from '../../components/Button/Button';
-import { AirbnbRating, Rating } from 'react-native-ratings';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/RootStackParamList';
+import { IMAGES } from '../../constants/Images';
+import { getOrder, submitReview } from '../../Api/Product';
 
-
-const TrackorderData = [
-    {
-        image:IMAGES.item05,
-        title:"Polka dot wrap blouse dress",
-        price:"$99",
-        discount:"$118",
-        offer:"70% OFF",
-        hascolor:true,
-        brand:"#22344862"
-    },
-]
-
-const btnData = [
-    {
-        name:"Yes"
-    },
-    {
-        name:"No"
-    }
-]
-
-
-
-type WritereviewScreenProps = StackScreenProps<RootStackParamList, 'Writereview'>;
-
-const Writereview = ({navigation} : WritereviewScreenProps) => {
-
-    const theme = useTheme();
-    const { colors } : {colors : any} = theme;
-
-
-    const [isChecked, setIsChecked] = useState(btnData[0]);
-
-    return (
-        <View style={{backgroundColor:colors.background,flex:1}}>
-            <Header
-                title='Write Review'
-                leftIcon='back'
-                titleRight
-            />
-            <ScrollView contentContainerStyle={{flexGrow:1}}>
-                <View style={[GlobalStyleSheet.container,{paddingTop:0,marginVertical:10,paddingBottom:0}]}>
-                    <View style={{
-                        marginHorizontal: -15
-                    }}>
-                        {TrackorderData.map((data:any, index) => {
-                            return (
-                                <View key={index}>
-                                    <Cardstyle2
-                                        key={index}
-                                        title={data.title}
-                                        price={data.price}
-                                        delevery={data.delevery}
-                                        image={data.image}
-                                        offer={data.offer}
-                                        removebottom
-                                        brand={data.brand}
-                                        //onPress={() => navigation.navigate('ProductsDetails')}
-                                    />
-                                </View>
-                            )
-                        })}
-                    </View>
-                </View>
-                <View style={[GlobalStyleSheet.container,{paddingTop:0,backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card,}]}>
-                    <View style={{ marginTop: 15,borderBottomWidth:1,borderBottomColor:COLORS.primaryLight,marginHorizontal:-15,paddingHorizontal:15,paddingBottom:15,marginBottom:10 }}>
-                        <Text style={{ ...FONTS.fontMedium, fontSize: 16, color: colors.title }}>Overall Rating</Text>
-                    </View>
-                    <Text style={{ ...FONTS.fontRegular, fontSize: 16, color:colors.title, marginTop: 5 }}>Your Average Rating Is 4.0</Text>
-                    {/* <Rating
-                        ratingCount={5}
-                        imageSize={50}
-                        style={{ paddingTop: 20 }}
-                    /> */}
-                    <AirbnbRating
-                        count={5}
-                        reviews={[]}
-                        defaultRating={4}
-                        size={30}
-                        ratingContainerStyle={{height:25,alignItems:'flex-start'}}
-                    />
-                    <View style={{ marginBottom: 15, marginTop: 30 }}>
-                        <Text style={{ ...FONTS.fontMedium, fontSize: 12, color:COLORS.primary, marginBottom: 5 }}>Review Title</Text>
-                        <Input
-                            inputBorder
-                            defaultValue="Awesome Product"
-                            onChangeText={(value) => console.log(value)}
-                            style={{borderColor:colors.text, paddingLeft:0,}}
-                        />
-                    </View>
-                    <View style={{ marginBottom: 15 }}>
-                        <Text style={{ ...FONTS.fontRegular, fontSize: 15, color: colors.title, marginBottom: 5 }}>Product Review</Text>
-                        <Input
-                            inputLg
-                            inputBorder
-                            //defaultValue="Awesome Product"
-                            onChangeText={(value) => console.log(value)}
-                            style={{borderColor:colors.text, paddingLeft:0,}}
-                        />
-                    </View>
-                    <View>
-                        <Text style={{ ...FONTS.fontRegular, fontSize: 15, color: colors.title }}>Would you recommend this product to a friend?</Text>
-                        <View style={{
-                            flexDirection:'row',
-                            alignItems:'center',
-                            gap:15,
-                            marginTop:10
-                        }}>
-                            {btnData.map((data:any,index:any) => {
-                                return(
-                                    <View key={index} style={{flexDirection:'row',alignItems:'center',gap:5}}>
-                                        <TouchableOpacity
-                                            style={[{
-                                                backgroundColor:colors.background,
-                                                width: 24,
-                                                height: 24,
-                                                borderRadius: 50,
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                            },isChecked === data && {
-                                                backgroundColor:COLORS.primary
-                                            }]}
-                                            onPress={() => setIsChecked(data)}
-                                        >
-                                            <View style={[{
-                                                width: 14,
-                                                height: 14,
-                                                backgroundColor:theme.dark ? colors.background : colors.card,
-                                                borderRadius: 50
-                                            }, isChecked === data && {
-                                                backgroundColor:theme.dark ? colors.background : colors.card
-                                            }]}></View>
-                                        </TouchableOpacity>
-                                        <Text style={{ ...FONTS.fontMedium, fontSize: 16, color: colors.title }}>{data.name}</Text>
-                                    </View>
-                                )
-                            })}
-                        </View>
-                        {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 10 }}>
-                            <TouchableOpacity
-                                style={{
-                                    flexDirection: 'row', alignItems: 'center', gap: 5
-                                }}
-                                onPress={() => setIsChecked(!isChecked)}
-                            >
-                                <TouchableOpacity
-                                   style={[{
-                                        backgroundColor:COLORS.primaryLight,
-                                        //borderWidth: 1,
-                                        width: 24,
-                                        height: 24,
-                                        borderRadius: 50,
-                                        //borderColor: colors.border,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    },isChecked == true && {
-                                        //borderColor:colors.title
-                                        backgroundColor:COLORS.primary
-                                    }]}
-                                    onPress={() => setIsChecked(!isChecked)}
-                                >
-                                    <View style={[{
-                                        width: 14,
-                                        height: 14,
-                                        backgroundColor:theme.dark ? colors.background : colors.card,
-                                        borderRadius: 50
-                                    }, isChecked == true && {
-                                        backgroundColor:COLORS.card,
-                                    }]}></View>
-                                </TouchableOpacity>
-                                <Text style={{ ...FONTS.fontMedium, fontSize: 16, color: colors.title }}>Yes</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={{
-                                    flexDirection: 'row', alignItems: 'center', gap: 5
-                                }}
-                                onPress={() => setChecked(!Checked)}
-                            >
-                                <TouchableOpacity
-                                    style={[{
-                                        backgroundColor:COLORS.primaryLight,
-                                       // borderWidth: 1,
-                                        width: 24,
-                                        height: 24,
-                                        borderRadius: 50,
-                                        //borderColor: colors.border,
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                    },Checked == true && {
-                                        //borderColor:colors.title
-                                        backgroundColor:COLORS.primary
-                                    }]}
-                                    onPress={() => setChecked(!Checked)}
-                                >
-                                    <View style={[{
-                                        width: 14,
-                                        height: 14,
-                                        backgroundColor:theme.dark ? colors.background : colors.card,
-                                        borderRadius: 50
-                                    }, Checked == true && {
-                                        backgroundColor: COLORS.card,
-                                    }]}></View>
-                                </TouchableOpacity>
-                                <Text style={{ ...FONTS.fontMedium, fontSize: 16, color: colors.title }}>No</Text>
-                            </TouchableOpacity>
-                        </View> */}
-                    </View>
-                </View>
-            </ScrollView>
-            <View style={[GlobalStyleSheet.container,{padding:0}]}>
-                <View 
-                    style={{
-                        height:88,
-                        width:'100%',
-                        backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card,
-                        justifyContent:'center',
-                        paddingHorizontal:15,
-                        shadowColor: "#000",
-                        shadowOffset: {
-                            width: 2,
-                            height: 2,
-                        },
-                        shadowOpacity: .1,
-                        shadowRadius: 5,
-                    }}
-                >
-                    <Button
-                        title='Save Address'
-                        color={COLORS.secondary}
-                        text={COLORS.title }
-                        onPress={() => navigation.navigate('Myorder')}
-                    />
-                </View>
-            </View>
-        </View>
-    )
+/* Enable animation on Android */
+if (Platform.OS === 'android') {
+  UIManager.setLayoutAnimationEnabledExperimental?.(true);
 }
 
-export default Writereview
+const WriteReview = () => {
+  const { colors } = useTheme();
+
+  const [products, setProducts] = useState<any[]>([]);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState('');
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
+
+  const loadOrders = async () => {
+    const res = await getOrder();
+
+    const mapped = res.data.flatMap((order: any) =>
+      order.products.map((p: any) => ({
+        productId: p.productId,
+        title: p.productTitle,
+        image: p.image,
+        price: p.price,
+      }))
+    );
+
+    setProducts(mapped);
+  };
+
+  const toggle = (index: number) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedIndex(prev => (prev === index ? null : index));
+    setRating(0);
+    setComment('');
+  };
+
+  const submit = async (productId: string) => {
+    if (!rating || !comment) {
+      Alert.alert('Error', 'Please give rating & comment');
+      return;
+    }
+
+      await submitReview({
+        productId,
+        rating,
+        comment,
+      });
+
+      Alert.alert('Success', 'Review submitted');
+      setExpandedIndex(null);
+    
+  };
+
+  return (
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <Header title="Write Review" leftIcon="back" />
+
+      <ScrollView>
+        <View style={GlobalStyleSheet.container}>
+          {products.map((item, index) => {
+            const open = expandedIndex === index;
+
+            return (
+              <View key={index} style={{ marginBottom: 15 }}>
+                <View
+                  style={{
+                    backgroundColor: colors.card,
+                    borderRadius: 10,
+                    padding: 10,
+                  }}
+                >
+                  <Cardstyle2
+                    title={item.title}
+                    price={`₹${item.price}`}
+                    image={item.image}
+                    removebottom
+                    onPress={() => toggle(index)}
+                  />
+
+                  <TouchableOpacity
+                    onPress={() => toggle(index)}
+                    style={{
+                      marginTop: 10,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{ ...FONTS.fontMedium, color: COLORS.primary }}>
+                      Write Review
+                    </Text>
+                    <Image
+                      source={IMAGES.downArrow}
+                      style={{
+                        width: 14,
+                        height: 14,
+                        tintColor: COLORS.primary,
+                        transform: [{ rotate: open ? '180deg' : '0deg' }],
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {open && (
+                  <View
+                    style={{
+                      marginTop: 10,
+                      padding: 15,
+                      borderRadius: 10,
+                      backgroundColor: colors.card,
+                    }}
+                  >
+                    {/* ⭐ RATING */}
+                    <View style={{ flexDirection: 'row', marginBottom: 15 }}>
+                      {[1, 2, 3, 4, 5].map(num => (
+                        <TouchableOpacity
+                          key={num}
+                          onPress={() => setRating(num)}
+                        >
+                          <Text
+                            style={{
+                              fontSize: 26,
+                              marginRight: 5,
+                              color:
+                                num <= rating
+                                  ? COLORS.warning
+                                  : COLORS.textLight,
+                            }}
+                          >
+                            ★
+                          </Text>
+                        </TouchableOpacity>
+                      ))}
+                    </View>
+
+                    {/* COMMENT */}
+                    <TextInput
+                      placeholder="Write your review..."
+                      placeholderTextColor={COLORS.textLight}
+                      multiline
+                      value={comment}
+                      onChangeText={setComment}
+                      style={{
+                        borderWidth: 1,
+                        borderColor: COLORS.borderColor,
+                        borderRadius: 8,
+                        padding: 10,
+                        minHeight: 80,
+                        color: colors.text,
+                        marginBottom: 15,
+                      }}
+                    />
+
+                    {/* SUBMIT */}
+                    <TouchableOpacity
+                      onPress={() => submit(item.productId)}
+                      style={{
+                        backgroundColor: COLORS.primary,
+                        padding: 12,
+                        borderRadius: 8,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Text
+                        style={{
+                          ...FONTS.fontMedium,
+                          color: COLORS.white,
+                        }}
+                      >
+                        Submit Review
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+            );
+          })}
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default WriteReview;

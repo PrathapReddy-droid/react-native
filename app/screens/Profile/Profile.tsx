@@ -8,6 +8,7 @@ import { COLORS,FONTS, SIZES } from '../../constants/theme';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/RootStackParamList';
 import auth from '@react-native-firebase/auth';
+import { useSelector } from 'react-redux';
 
 const btnData = [
   {
@@ -47,16 +48,16 @@ const ListwithiconData = [
               title: "Saved Addresses",
               navigate: 'AddDeleveryAddress'
           },
-          {
-              icon: IMAGES.translation,
-              title: "Select Language",
-              navigate: 'Language'
-          },
-          {
-              icon: IMAGES.ball,
-              title: "Notifications Settings",
-              navigate: 'Notification'
-          },
+        //   {
+        //       icon: IMAGES.translation,
+        //       title: "Select Language",
+        //       navigate: 'Language'
+        //   },
+        //   {
+        //       icon: IMAGES.ball,
+        //       title: "Notifications Settings",
+        //       navigate: 'Notification'
+        //   },
       ],
   },
   {
@@ -83,23 +84,23 @@ const Profile = ({navigation} : ProfileScreenProps) => {
 
     const theme = useTheme();
     const { colors } : {colors : any} = theme;
+  const user = useSelector((state: any) => state.user.selectedUser);
+    console.log(user)
 
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
 
     useEffect(() => {
-        const user = auth().currentUser;
         if (user) {
-            setUsername(user.displayName || '');
+            setUsername(user.name || '');
             setEmail(user.email || '');
         }
     }, []);
 
     useFocusEffect(
         useCallback(() => {
-            const user = auth().currentUser;
             if (user) {
-            setUsername(user.displayName || '');
+            setUsername(user.name || '');
             // set other info like email/phone as needed
             }
         }, [])
@@ -122,7 +123,7 @@ const Profile = ({navigation} : ProfileScreenProps) => {
                                 />
                             </TouchableOpacity>
                             <Image
-                                style={{resizeMode:'contain',width:114,height:25}}
+                                style={{width:114,height:25}}
                                 source={IMAGES.appname}
                             />
                         </View>
@@ -165,10 +166,19 @@ const Profile = ({navigation} : ProfileScreenProps) => {
             </View>
             <View style={[GlobalStyleSheet.container,{paddingTop:20,backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card}]}> 
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingBottom: 20 }}>
-                    <Image
-                        style={{ height: 40, width: 40, borderRadius: 50 }}
-                        source={IMAGES.small6}
-                    />
+                        <Image
+                                source={
+                                  user?.avatar
+                                    ? { uri: user.avatar }
+                                    : IMAGES.user3
+                                }
+                                style={{
+                                  height: 60,
+                                  width: 60,
+                                  borderRadius: 10,
+                                  marginRight: 10,
+                                }}
+                              />
                     <Text numberOfLines={1} style={{ ...FONTS.fontRegular, fontSize: 20, color: colors.title }}>{username || 'N/A'}</Text>
                 </View>
                 <View style={GlobalStyleSheet.row}>

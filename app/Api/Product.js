@@ -11,7 +11,7 @@ export const productList =async(id)=>{
         },
       }
     );
-    console.log(response)
+    console.log(response.products,"=========================here i am calling")
     return response.products; // return only useful data
   } catch (error) {
     console.error('Home API Error:', {
@@ -24,6 +24,35 @@ export const productList =async(id)=>{
     // rethrow so caller can handle it
     throw error;
   }
+}
+export const VideoApi = async()=>{
+    const token = await AsyncStorage.getItem('AccessToken')
+
+    try{
+    
+    const response = await apiClient.get(`api/product/videos`,{
+           headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+      
+    )
+    console.log(response,"============================================>>>>>")
+    return response
+
+  }catch(error){
+    console.error('Home API Error:', {
+      url: error?.config?.baseURL + error?.config?.url,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      message: error.message,
+    });
+
+    // rethrow so caller can handle it
+    throw error;
+  }
+
 }
 export const productreview =async(projectId)=>{
         const token = await AsyncStorage.getItem('AccessToken');
@@ -104,3 +133,33 @@ export const getOrder = async()=>{
     throw error;
   }
 }
+export const submitReview = async (payload) => {
+  try {
+    const token = await AsyncStorage.getItem('AccessToken');
+
+    if (!token) {
+      throw new Error('Access token not found');
+    }
+
+    const response = await apiClient.post(
+      `/api/user/addReview`,
+      payload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    console.log(response,"================>>>>")
+
+    return response.data;
+  } catch (error) {
+    console.log(
+      'Submit Review API Error:',
+      error?.response?.data || error.message
+    );
+    throw error;
+  }
+};
+

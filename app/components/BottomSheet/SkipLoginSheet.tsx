@@ -470,7 +470,7 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                             </View>
                         }
                         <View style={{paddingTop:10}}>
-                            <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.title}]}>By continuing, you agree to FizzFuzz's <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Terms of Use</Text>{"\n"}and <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Privacy Policy</Text>.</Text>
+                            <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.title}]}>By continuing, you agree to FizzyFuzz's <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Terms of Use</Text>{"\n"}and <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Privacy Policy</Text>.</Text>
                         </View>
                     </View>
                     {verificationId && (

@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { API_BASE_URL } from '@env';
-console.log(API_BASE_URL)
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { navigate } from './NavigateService';
+console.log('===========================apiurl',API_BASE_URL)
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -10,22 +12,29 @@ const apiClient = axios.create({
   },
 });
 
-// OPTIONAL: token interceptor
+// Request interceptor (unchanged)
 apiClient.interceptors.request.use(
   async config => {
-    // const token = await getToken();
-    // if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   error => Promise.reject(error)
 );
 
+// ✅ Response interceptor
 apiClient.interceptors.response.use(
   response => response.data,
-  error => {
-    console.log('API Error:', error || error.message);
+  async error => {
+    const status = error?.response?.status;
+
+    if (status === 401) {
+      // only clear token, no navigation
+      await AsyncStorage.removeItem('AccessToken');
+    }
+
+    console.log('API Error:', error?.message || error);
     return Promise.reject(error);
   }
 );
+
 
 export default apiClient;

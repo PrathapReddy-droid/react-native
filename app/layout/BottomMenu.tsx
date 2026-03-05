@@ -182,7 +182,7 @@ const BottomMenu = ({state, navigation, descriptors}: Props) => {
                                                 }}
                                                 source={
                                                     label === 'Home'    ?  IMAGES.Home:
-                                                    label === 'Category' ?  IMAGES.grid:
+                                                    // label === 'Category' ?  IMAGES.grid:
                                                     label === 'MyCart'     ?  IMAGES.mycart:
                                                     label === 'Wishlist'   ?  IMAGES.heart2:
                                                     label === 'Profile'  ?  IMAGES.small6 : IMAGES.Home

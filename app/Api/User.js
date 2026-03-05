@@ -1,23 +1,25 @@
+import { Alert } from 'react-native';
 import apiClient from '../Api/BASEURL';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const loginApi = async (data) => {
   try {
     const response = await apiClient.post('/api/user/login', data);
-    console.log(JSON.stringify(response))
-    await AsyncStorage.setItem('AccessToken',response.data.accesstoken)
-    console.log(JSON.stringify(response))
-    return response.data; // return only useful data
-  } catch (error) {
-    console.error('Login API Error:', {
-      url: error?.config?.baseURL + error?.config?.url,
-      status: error?.response?.status,
-      data: error?.response?.data,
-      message: error.message,
-    });
 
-    // rethrow so caller can handle it
-    throw error;
+    await AsyncStorage.setItem('AccessToken',response.data.accesstoken)
+
+    return response;
+  } catch (error) {
+    // ✅ TAKE STRING MESSAGE ONLY
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      error?.message ||
+      'Something went wrong';
+
+    Alert.alert('Error', errorMessage, [{ text: 'OK' }]);
+    throw error
+
   }
 };
 export const registerApi = async (data) => {

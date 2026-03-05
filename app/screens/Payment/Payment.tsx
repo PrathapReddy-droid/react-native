@@ -63,7 +63,7 @@ const Payment = ({navigation} : PaymentScreenProps) => {
                 </View>
             </View>
             <ScrollView contentContainerStyle={{flexGrow:1}}>
-                <View style={[GlobalStyleSheet.container, { marginTop:15,backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card }]}>
+                {/* <View style={[GlobalStyleSheet.container, { marginTop:15,backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card }]}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',borderBottomWidth:1,marginHorizontal:-15,paddingHorizontal:15,paddingBottom:15,borderBottomColor:COLORS.primaryLight }}>
                         <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>Credit/Debit Card</Text>
                         <TouchableOpacity
@@ -95,7 +95,7 @@ const Payment = ({navigation} : PaymentScreenProps) => {
                             />
                         </ScrollView>
                     </View>
-                </View>
+                </View> */}
                 <View style={[GlobalStyleSheet.container, {padding:0 }]}>
                     <View style={{ marginTop: 30 }}>
                         <PaymentAccordion

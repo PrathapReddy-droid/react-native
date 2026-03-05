@@ -1,34 +1,37 @@
-import React, { useState } from 'react'
-import { View, Text, Pressable } from 'react-native'
+import React from 'react';
+import { Pressable } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { COLORS } from '../constants/theme';
 import { useTheme } from '@react-navigation/native';
 
-const LikeBtn = ({onPress,inWishlist,id}: any) => {
+type Props = {
+  onPress: () => void;
+  isLiked: boolean;
+};
 
-    const theme = useTheme();
-    const { colors } : {colors : any} = theme;
+const LikeBtn = ({ onPress, isLiked }: Props) => {
+  const { colors } = useTheme();
 
-    return (
-        <Pressable
-            accessible={true}
-            accessibilityLabel="Like Btn"
-            accessibilityHint="Like this item"
-            onPress={() =>  onPress ? onPress() : ""}
-            style={{
-                height: 50,
-                width: 50,
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}
-        >
-            {inWishlist().includes(id) ?
-                <FontAwesome size={16} color={COLORS.danger} name="heart" />
-                :
-                <FontAwesome size={16} color={colors.text} name="heart" />
-            }
-        </Pressable>
-    );
-}
+  return (
+    <Pressable
+      accessible
+      accessibilityLabel="Like Button"
+      accessibilityHint="Add or remove from wishlist"
+      onPress={onPress}
+      style={{
+        height: 50,
+        width: 50,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <FontAwesome
+        size={16}
+        name="heart"
+        color={isLiked ? COLORS.danger : colors.text}
+      />
+    </Pressable>
+  );
+};
 
 export default LikeBtn;

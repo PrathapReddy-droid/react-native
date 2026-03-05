@@ -1,31 +1,29 @@
 import { useTheme, useRoute } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import Header from '../../layout/Header';
-import { ScrollView } from 'react-native-gesture-handler';
-import { COLORS, FONTS } from '../../constants/theme';
-import Input from '../../components/Input/Input';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import Button from '../../components/Button/Button';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/RootStackParamList';
-import { PostAddressApi } from '../../Api/User';
+import React, { useEffect, useState, useRef } from 'react';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useSelector } from 'react-redux';
+import Header from '../../layout/Header';
+import Input from '../../components/Input/Input';
+import Button from '../../components/Button/Button';
+import AuthModal from '../Payment/AuthModel';
+import { PostAddressApi } from '../../Api/User';
+import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import { COLORS, FONTS } from '../../constants/theme';
 
-type Props = StackScreenProps<
-  RootStackParamList,
-  'AddDeleveryAddress'
->;
+const AddDeleveryAddress = ({ navigation }) => {
 
-const AddDeleveryAddress = ({ navigation }: Props) => {
   const theme = useTheme();
-  const route = useRoute<any>();
-  const { colors }: any = theme;
+  const { colors } = theme;
+  const route = useRoute();
+
+  const authModalRef = useRef(null);
+
+  const user = useSelector((state) => state.user?.selectedUser);
 
   const addressTypes = ['Home', 'Shop', 'Office'];
   const [activeType, setActiveType] = useState(addressTypes[0]);
-  const user = useSelector((state)=> state.user.selectedUser)
-  console.log(user,"========================================================")
+
+  const [pendingSave, setPendingSave] = useState(false);
 
   const [addressData, setAddressData] = useState({
     addressType: activeType,
@@ -36,21 +34,34 @@ const AddDeleveryAddress = ({ navigation }: Props) => {
     country: '',
     landmark: '',
     mobile: '',
-    userId: user._id,
   });
 
-  // ✅ RECEIVE ADDRESS FROM MAP
+  // ✅ If user not logged in when screen loads
+  useEffect(() => {
+    if (!user?._id) {
+      authModalRef.current?.open();
+    }
+  }, []);
+
+  // ✅ If user logs in and we were waiting to save
+  useEffect(() => {
+    if (user?._id && pendingSave) {
+      saveAddress(user._id);
+      setPendingSave(false);
+    }
+  }, [user]);
+
+  // Update address if selected from map
   useEffect(() => {
     if (route.params?.selectedAddress) {
       setAddressData(prev => ({
         ...prev,
         ...route.params.selectedAddress,
-        addressType: activeType,
       }));
     }
   }, [route.params?.selectedAddress]);
 
-  const handleChange = (key: string, value: string) => {
+  const handleChange = (key, value) => {
     setAddressData(prev => ({
       ...prev,
       [key]: value,
@@ -58,18 +69,34 @@ const AddDeleveryAddress = ({ navigation }: Props) => {
     }));
   };
 
-  const handleSave = async () => {
-    await PostAddressApi(addressData);
-    navigation.navigate('DeleveryAddress');
+  const saveAddress = async (userId) => {
+    try {
+      await PostAddressApi({ ...addressData, userId });
+      navigation.navigate('DeleveryAddress');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleSave = () => {
+
+    // 🚨 If not logged in → open login modal
+    if (!user?._id) {
+      setPendingSave(true);
+      authModalRef.current?.open();
+      return;
+    }
+
+    saveAddress(user._id);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      
       <Header title="Add Delivery Address" leftIcon="back" />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
 
-        {/* CONTACT */}
         <View style={[GlobalStyleSheet.container, { backgroundColor: colors.card, marginTop: 15 }]}>
           <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>
             Contact Details
@@ -84,24 +111,6 @@ const AddDeleveryAddress = ({ navigation }: Props) => {
           />
         </View>
 
-        {/* MAP BUTTON */}
-        <View style={[GlobalStyleSheet.container, { backgroundColor: colors.card, marginTop: 15 }]}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('MapAddressPicker')}
-            style={{
-              padding: 12,
-              borderWidth: 1,
-              borderColor: COLORS.primary,
-              borderRadius: 6,
-            }}
-          >
-            <Text style={{ textAlign: 'center', color: COLORS.primary }}>
-              Select Address From Map
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ADDRESS */}
         <View style={[GlobalStyleSheet.container, { backgroundColor: colors.card, marginTop: 15 }]}>
           <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>
             Address
@@ -115,39 +124,19 @@ const AddDeleveryAddress = ({ navigation }: Props) => {
           <Input inputBorder placeholder="Country" value={addressData.country} onChangeText={(v) => handleChange('country', v)} />
         </View>
 
-        {/* ADDRESS TYPE */}
-        <View style={[GlobalStyleSheet.container, { backgroundColor: colors.card, marginTop: 15 }]}>
-          <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>
-            Save Address As
-          </Text>
-
-          <View style={{ flexDirection: 'row', marginTop: 10 }}>
-            {addressTypes.map(type => (
-              <TouchableOpacity
-                key={type}
-                onPress={() => setActiveType(type)}
-                style={{
-                  padding: 10,
-                  marginRight: 8,
-                  borderWidth: 1,
-                  borderColor: COLORS.primary,
-                  backgroundColor: activeType === type ? COLORS.primary : 'transparent',
-                  borderRadius: 4,
-                }}
-              >
-                <Text style={{ color: activeType === type ? '#fff' : colors.title }}>
-                  {type}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
       </ScrollView>
 
       <View style={[GlobalStyleSheet.container, { padding: 0 }]}>
-        <Button title="Save Address" color={COLORS.secondary} onPress={handleSave} />
+        <Button
+          title="Save Address"
+          color={COLORS.secondary}
+          onPress={handleSave}
+        />
       </View>
+
+      {/* ✅ LOGIN MODAL (forwardRef version) */}
+      <AuthModal ref={authModalRef} />
+
     </View>
   );
 };

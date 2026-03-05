@@ -1,6 +1,6 @@
 import { useTheme } from '@react-navigation/native';
-import React from 'react'
-import { View, Text ,ScrollView, Image ,} from 'react-native'
+import React from 'react';
+import { View, Text, ScrollView, Image } from 'react-native';
 import Header from '../../layout/Header';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { IMAGES } from '../../constants/Images';
@@ -13,48 +13,42 @@ import { useDispatch, useSelector } from 'react-redux';
 import { removeFromCart } from '../../redux/reducer/cartReducer';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-
 type MyCartScreenProps = StackScreenProps<RootStackParamList, 'MyCart'>;
 
-const MyCart = ({navigation} : MyCartScreenProps)=> {
-
-    const cart = useSelector((state:any) => state.cart.cart);
-    console.log(cart,"=========cart==============")
+const MyCart = ({ navigation }: MyCartScreenProps) => {
+    const cart = useSelector((state: any) => state.cart.cart);
     const dispatch = useDispatch();
 
-    const removeItemFromCart = (data: any) => {
-        dispatch(removeFromCart(data));
-    }
+    const theme = useTheme();
+    const { colors }: { colors: any } = theme;
 
-  
-  const theme = useTheme();
-  const { colors } : {colors : any} = theme;
+    const removeItemFromCart = (productId: string) => {
+        dispatch(removeFromCart(productId));
+    };
 
-  return (
-      <View style={{backgroundColor:colors.background,flex:1}}>
-          <Header
-            title='Shopping Cart'
-            leftIcon='back'
-            titleLeft
-            righttitle2
-          />
-            {cart.length > 0 ?
-                <View 
-                    style={[GlobalStyleSheet.container,
-                        { paddingHorizontal: 15,
-                            backgroundColor:theme.dark ? 'rgba(255,255,258,.1)':colors.card,
-                            shadowColor: "#000",
-                            shadowOffset: {
-                                width: 0,
-                                height: 4,
-                            },
+    return (
+        <View style={{ backgroundColor: colors.background, flex: 1 }}>
+            <Header title="Shopping Cart" leftIcon="back" titleLeft righttitle2 />
+
+            {/* STEP INDICATOR */}
+            {cart.length > 0 && (
+                <View
+                    style={[
+                        GlobalStyleSheet.container,
+                        {
+                            paddingHorizontal: 15,
+                            backgroundColor: theme.dark
+                                ? 'rgba(255,255,258,.1)'
+                                : colors.card,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 4 },
                             shadowOpacity: 0.35,
                             shadowRadius: 6.27,
-                            elevation: 5, 
-                        }
+                            elevation: 5,
+                        },
                     ]}
                 >
-                    <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
+                  <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between'}}>
                         <View style={{flexDirection:'row',alignItems:'center',gap:5}}>
                             <View style={{height:18,width:18,borderRadius:30,backgroundColor:COLORS.primary,alignItems:'center',justifyContent:'center'}}>
                                 <Text style={[FONTS.fontMedium,{fontSize:10,color:COLORS.card}]}>1</Text>
@@ -77,106 +71,131 @@ const MyCart = ({navigation} : MyCartScreenProps)=> {
                         </View>
                     </View>
                 </View>
-                :
-                null
-            }
-            {cart.length > 0 ?
-                <View style={[GlobalStyleSheet.container,{padding:0}]}>
-                    <View style={{height:45,backgroundColor:'#87E8FF',marginVertical:15,flexDirection:'row',alignItems:'center',width:'100%',justifyContent:'space-between',paddingLeft:15}}>
-                        <View>
-                            <Text style={[FONTS.fontRegular,{fontSize:15,color:COLORS.title}]} >You're saving<Text style={[FONTS.fontSemiBold,{color:'#07A3C5'}]}> $5,565 </Text>on this time</Text>
-                        </View>
+            )}
+
+            {/* SAVINGS BANNER */}
+            {cart.length > 0 && (
+                <View style={[GlobalStyleSheet.container, { padding: 0 }]}>
+                    <View
+                        style={{
+                            height: 45,
+                            backgroundColor: '#87E8FF',
+                            marginVertical: 15,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            paddingLeft: 15,
+                        }}
+                    >
+                        <Text style={[FONTS.fontRegular, { fontSize: 15, color: COLORS.title }]}>
+                            You're saving
+                            <Text style={[FONTS.fontSemiBold, { color: '#07A3C5' }]}> ₹5,565 </Text>
+                            this time
+                        </Text>
+
                         <View>
                             <Image
-                                style={{height:45,resizeMode:'contain',marginRight:-35}}
+                                style={{ height: 45, resizeMode: 'contain', marginRight: -35 }}
                                 source={IMAGES.background}
                             />
                             <Image
-                                style={{position:'absolute',height:28,width:28,top:10,right:15}}
+                                style={{ position: 'absolute', height: 28, width: 28, top: 10, right: 15 }}
                                 source={IMAGES.gift}
                             />
                         </View>
                     </View>
                 </View>
-                :
-                null
-            }
-            <ScrollView contentContainerStyle={{flexGrow:1}} showsVerticalScrollIndicator={false}>
-                <View style={[GlobalStyleSheet.container,{padding:0}]}>
-                    {cart.map((data:any,index:any) => {
-                        console.log(data,"=========================cartdata")
-                        return(
-                            <View key={index} style={{marginBottom:10}}>
+            )}
+
+            {/* CART LIST */}
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+                <View style={[GlobalStyleSheet.container, { padding: 0 }]}>
+                    {cart.map((data: any) => {
+                        console.log(data ,"============================proceed to buy")
+                        const product = data.product || {};
+                        const productId = product._id || product.id;
+                        const title = product.name || product.title || '';
+                        const image = product.images?.[0] || product.image || '';
+                        const price = product.price || 0;
+                        const oldPrice = product.oldPrice || 0;
+
+                        return (
+                            <View key={productId} style={{ marginBottom: 10 }}>
                                 <Cardstyle2
-                                   id={data.product._id}
-                                   quantity={data.quantity}
-                                    title={data.product.brand}
-                                    price={data.product.price}
-                                    discount={data.product.oldPrice}
-                                    delevery={data.product.delevery}
-                                    image={data?.product?.images[0]}
-                                    offer={data.discount}
-                                    brand={data.brand} 
-                                    onPress={() => navigation.navigate('ProductsDetails')}
-                                    onPress4={() => removeItemFromCart(data)} 
+                                    id={productId}
+                                    quantity={data.quantity}
+                                    title={title}
+                                    price={price}
+                                    discount={oldPrice}
+                                    image={image}
+                                    onPress={() =>
+                                        navigation.navigate('ProductsDetails', { product: data.product })
+                                    }
+                                    onPress4={() => removeItemFromCart(productId)}
                                 />
                             </View>
-                        )
+                        );
                     })}
                 </View>
             </ScrollView>
-            {cart.length > 0 ?
-                (
-                    <View style={[GlobalStyleSheet.container,{backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card}]}>
-                        <Button
-                            title={`Proceed to Buy (${cart.length}) items`}
-                            color={COLORS.secondary}
-                            text={COLORS.title}
-                            onPress={() => navigation.navigate('DeleveryAddress')}
-                        />
-                    </View>
 
-
-                )
-                :
-                (
-                    <View style={[GlobalStyleSheet.container,{padding:0,position:'absolute',left:0,right:0,bottom:0,top:20}]}>
+            {/* FOOTER / EMPTY STATE */}
+            {cart.length > 0 ? (
+                <View
+                    style={[
+                        GlobalStyleSheet.container,
+                        { backgroundColor: theme.dark ? 'rgba(255,255,255,.1)' : colors.card },
+                    ]}
+                >
+                    <Button
+                        title={`Proceed to Buy (${cart.length}) items`}
+                        color={COLORS.secondary}
+                        text={COLORS.title}
+                        onPress={() => navigation.navigate('DeleveryAddress')}
+                    />
+                </View>
+            ) : (
+                <View
+                    style={[
+                        GlobalStyleSheet.container,
+                        { padding: 0, position: 'absolute', left: 0, right: 0, top: 20 },
+                    ]}
+                >
+                    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                         <View
                             style={{
-                                flex:1,
-                                alignItems:'center',
-                                justifyContent:'center',
+                                height: 60,
+                                width: 60,
+                                borderRadius: 60,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: COLORS.primaryLight,
+                                marginBottom: 20,
+                                marginTop:60
                             }}
                         >
-                            <View
-                                style={{
-                                    height:60,
-                                    width:60,
-                                    borderRadius:60,
-                                    alignItems:'center',
-                                    justifyContent:'center',
-                                    backgroundColor:COLORS.primaryLight,
-                                    marginBottom:20,
-                                }}
-                            >
-                                <FeatherIcon color={COLORS.primary} size={24} name='shopping-cart'/>
-                            </View>
-                            <Text style={{...FONTS.h5,color:colors.title,marginBottom:8}}>Your shopping-cart is Empty!</Text>    
-                            <Text
-                                style={{
-                                    ...FONTS.fontSm,
-                                    color:colors.text,
-                                    textAlign:'center',
-                                    paddingHorizontal:40,
-                                    //marginBottom:30,
-                                }}
-                            >Add Product to you favourite and shop now.</Text>
+                            <FeatherIcon color={COLORS.primary} size={24} name="shopping-cart" />
                         </View>
-                    </View>
-                )
-            }
-      </View>
-  )
-}
 
-export default MyCart
+                        <Text style={{ ...FONTS.h5, color: colors.title, marginBottom: 8 }}>
+                            Your shopping-cart is Empty!
+                        </Text>
+
+                        <Text
+                            style={{
+                                ...FONTS.fontSm,
+                                color: colors.text,
+                                textAlign: 'center',
+                                paddingHorizontal: 40,
+                            }}
+                        >
+                            Add products to your cart and shop now.
+                        </Text>
+                    </View>
+                </View>
+            )}
+        </View>
+    );
+};
+
+export default MyCart;

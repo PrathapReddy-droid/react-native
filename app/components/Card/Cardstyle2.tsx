@@ -38,7 +38,7 @@ type Props = {
 }
 
 const Cardstyle2 = ({id,quantity,title,price,image,delevery,removelikebtn,offer,btntitle,onPress,brand,discount,closebtn,trackorder,completed,EditReview,onPress2,removebottom,onPress3,onPress4}:Props) => {
-
+console.log(trackorder,"-------")
     const theme = useTheme();
     const { colors } : {colors : any} = theme;
 
@@ -112,7 +112,7 @@ const Cardstyle2 = ({id,quantity,title,price,image,delevery,removelikebtn,offer,
             <View style={{height:40,width:'100%',justifyContent:'space-between',flexDirection:'row',alignItems:'center'}}>
                 {trackorder ? 
                     <TouchableOpacity onPress={onPress2} activeOpacity={0.5} style={{flexDirection:'row',alignItems:'center',gap:5,paddingHorizontal:0}}>
-                        <FeatherIcon size={14} color={colors.primary} name={'truck'} />
+                        <FeatherIcon size={14} color={COLORS.primary} name={'truck'} />
                         <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.text}]}>Track Order</Text>
                     </TouchableOpacity>
                 :completed ? 
@@ -162,22 +162,56 @@ const Cardstyle2 = ({id,quantity,title,price,image,delevery,removelikebtn,offer,
                         activeOpacity={0.5} 
                         style={{flexDirection:'row',alignItems:'center',gap:5,paddingHorizontal:0}}
                     >
-                        <FeatherIcon size={14} color={colors.text} name={'save'} />
-                        <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.text}]}>Save for later</Text>
+                        {/* <FeatherIcon size={14} color={colors.text} name={'save'} />
+                        <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.text}]}>Save for later</Text> */}
                     </TouchableOpacity>
                 }      
                 <View style={{width:1,height:40,backgroundColor:COLORS.primaryLight,}}/>
-                <TouchableOpacity
-                    onPress={onPress4} 
-                    activeOpacity={0.5} 
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 5, }}
-                >
-                    <Image
-                        style={{ height: 16, width: 16, resizeMode: 'contain', tintColor:COLORS.danger }}
-                        source={IMAGES.delete}
-                    />
-                    <Text style={{ ...FONTS.fontMedium, fontSize: 14, color:COLORS.danger }}>Remove</Text>
-                </TouchableOpacity>
+         <TouchableOpacity
+  onPress={onPress4}
+  activeOpacity={0.5}
+  style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}
+>
+  {trackorder ? (
+    <>
+      <FeatherIcon
+        name="x-circle"
+        size={16}
+        color={COLORS.danger}
+      />
+      <Text
+        style={{
+          ...FONTS.fontMedium,
+          fontSize: 14,
+          color: COLORS.danger,
+        }}
+      >
+        Cancel Order
+      </Text>
+    </>
+  ) : (
+    <>
+      <Image
+        style={{
+          height: 16,
+          width: 16,
+          resizeMode: 'contain',
+          tintColor: COLORS.danger,
+        }}
+        source={IMAGES.delete}
+      />
+      <Text
+        style={{
+          ...FONTS.fontMedium,
+          fontSize: 14,
+          color: COLORS.danger,
+        }}
+      >
+        Remove
+      </Text>
+    </>
+  )}
+</TouchableOpacity>
             </View>
         }
     </View>

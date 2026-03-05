@@ -23,10 +23,7 @@ const BottomNavigation = () => {
                 name='Home'
                 component={HomeScreen}
             />
-            <Tab.Screen 
-                name='Category'
-                component={CategoryScreen}
-            />
+         
             <Tab.Screen 
                 name='MyCart'
                 component={MyCartScreen}

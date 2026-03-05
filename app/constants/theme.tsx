@@ -1,8 +1,19 @@
 import { Dimensions } from "react-native";
+import LinearGradient from "react-native-linear-gradient";
 const {width,height} = Dimensions.get('screen');
 
 export const COLORS = {
-	primary: "#2874F0",
+	primary: "#47057e",
+	  PrimaryGradient: ({ style, children }) => (
+    <LinearGradient
+      colors={['#9e4bde', '#47057e']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={style}
+    >
+      {children}
+    </LinearGradient>
+  ),
 	primaryLight: "#DFE7F4",
 	secondary: "#FFE019",
 	success: "#159E42",

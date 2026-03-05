@@ -7,6 +7,7 @@ export const wishListSlice = createSlice({
     },
     reducers:{
         addTowishList : (state:any,action:any) => {
+            console.log(JSON.stringify(state),JSON.stringify(action),"==============================action state")
             const itemInwishList = state.wishList.find((item:any) => item.id == action.payload.id);
             if(itemInwishList){
                 itemInwishList.quantity++;
