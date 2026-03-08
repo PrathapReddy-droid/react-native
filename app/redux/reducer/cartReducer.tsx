@@ -4,15 +4,9 @@ const normalizeProduct = (product: any) => {
   if (!product) return null;
   const id = product._id || product.id;
   if (!id) return null;
-
-  return {
-    ...product,
-    _id: id,
-    id: id,
-  };
+  return { ...product, _id: id, id: id };
 };
 
-// 🔥 Compare variants helper
 const isSameVariant = (v1: any = {}, v2: any = {}) => {
   return JSON.stringify(v1) === JSON.stringify(v2);
 };
@@ -20,14 +14,12 @@ const isSameVariant = (v1: any = {}, v2: any = {}) => {
 export const cartSlice = createSlice({
   name: 'cart',
   initialState: {
-    cart: [],
-    buyNowItem: null, // ✅ ADD THIS
+    cart: [] as any[],
+    buyNowItem: null as any,
   },
   reducers: {
 
-    /* ==============================
-       ✅ ADD TO CART (WITH VARIANT)
-    ============================== */
+    /* ── ADD TO CART ── */
     addToCart: (state: any, action: any) => {
       const rawProduct = action.payload?.product || action.payload;
       const quantity = action.payload?.quantity || 1;
@@ -45,38 +37,27 @@ export const cartSlice = createSlice({
       if (itemInCart) {
         itemInCart.quantity += quantity;
       } else {
-        state.cart.push({
-          product,
-          quantity,
-          selectedVariant,
-        });
+        state.cart.push({ product, quantity, selectedVariant });
       }
     },
 
-    /* ==============================
-       ✅ BUY NOW (NEW)
-    ============================== */
+    /* ── BUY NOW ── quantity now read from payload, not hardcoded */
     setBuyNowItem: (state: any, action: any) => {
       const rawProduct = action.payload?.product;
       const selectedVariant = action.payload?.selectedVariant || {};
+      const quantity = action.payload?.quantity || 1; // ✅ FIXED — was hardcoded 1
 
       const product = normalizeProduct(rawProduct);
       if (!product) return;
 
-      state.buyNowItem = {
-        product,
-        quantity: 1,
-        selectedVariant,
-      };
+      state.buyNowItem = { product, quantity, selectedVariant };
     },
 
     clearBuyNowItem: (state: any) => {
       state.buyNowItem = null;
     },
 
-    /* ==============================
-       ✅ REMOVE FROM CART
-    ============================== */
+    /* ── REMOVE FROM CART ── */
     removeFromCart: (state: any, action: any) => {
       const productId =
         action.payload?.product?._id ||
@@ -86,7 +67,6 @@ export const cartSlice = createSlice({
         action.payload;
 
       const selectedVariant = action.payload?.selectedVariant || {};
-
       if (!productId) return;
 
       state.cart = state.cart.filter(
@@ -98,23 +78,16 @@ export const cartSlice = createSlice({
       );
     },
 
-    /* ==============================
-       ✅ REMOVE ORDERED PRODUCTS
-    ============================== */
+    /* ── REMOVE ORDERED PRODUCTS ── */
     removeOrderedProducts: (state: any, action: any) => {
       const orderedProductIds = action.payload;
-
       if (!Array.isArray(orderedProductIds)) return;
-
       state.cart = state.cart.filter(
-        (item: any) =>
-          !orderedProductIds.includes(item.product._id)
+        (item: any) => !orderedProductIds.includes(item.product._id)
       );
     },
 
-    /* ==============================
-       ✅ INCREMENT
-    ============================== */
+    /* ── INCREMENT ── */
     incrementQuantity: (state: any, action: any) => {
       const productId =
         action.payload?.product?._id ||
@@ -134,9 +107,7 @@ export const cartSlice = createSlice({
       if (item) item.quantity += 1;
     },
 
-    /* ==============================
-       ✅ DECREMENT
-    ============================== */
+    /* ── DECREMENT ── */
     decrementQuantity: (state: any, action: any) => {
       const productId =
         action.payload?.product?._id ||
@@ -176,8 +147,8 @@ export const {
   incrementQuantity,
   decrementQuantity,
   removeOrderedProducts,
-  setBuyNowItem,   // ✅ NOW EXISTS
-  clearBuyNowItem, // ✅ NOW EXISTS
+  setBuyNowItem,
+  clearBuyNowItem,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

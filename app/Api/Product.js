@@ -25,6 +25,26 @@ export const productList =async(id)=>{
     throw error;
   }
 }
+export const productdelieverytime = async(payload)=>{
+  const token = await AsyncStorage.getItem('AccessToken')
+  try{
+    const response = await apiClient.post(`/api/product/getDeliverytime`,
+           { ...payload },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(response, "===== cancel order response");
+    return response;
+  }catch(error){
+    return error
+    
+  }
+}
 export const VideoApi = async()=>{
     const token = await AsyncStorage.getItem('AccessToken')
 
@@ -163,3 +183,105 @@ export const submitReview = async (payload) => {
   }
 };
 
+
+export const cancelOrder = async (order_id) => {
+  const token = await AsyncStorage.getItem('AccessToken');
+
+  try {
+    const response = await apiClient.post(
+      '/api/order/cancel-order',
+      { ...order_id },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(response, "===== cancel order response");
+    return response;
+
+  } catch (error) {
+
+    console.log('Cancel Order API Error:', {
+      url: error?.config?.baseURL + error?.config?.url,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      message: error.message,
+    });
+
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Something went wrong"
+    };
+  }
+};
+export const TracOrder = async (order_id) => {
+  const token = await AsyncStorage.getItem('AccessToken');
+  console.log(token,"===========================")
+
+  try {
+    const response = await apiClient.post(
+      '/api/order/track-order',
+      { ...order_id },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(response, "===== cancel order response");
+    return response;
+
+  } catch (error) {
+
+    console.log('Cancel Order API Error:', {
+      url: error?.config?.baseURL + error?.config?.url,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      message: error.message,
+    });
+
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Something went wrong"
+    };
+  }
+};
+export const returnOrder = async(payload)=>{
+  const token = await AsyncStorage.getItem('AccessToken');
+  console.log(token,"===========================")
+
+  try {
+    const response = await apiClient.post(
+      '/api/order/order/return',
+      { ...payload },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    console.log(response, "===== cancel order response");
+    return response;
+
+  } catch (error) {
+
+    console.log('Cancel Order API Error:', {
+      url: error?.config?.baseURL + error?.config?.url,
+      status: error?.response?.status,
+      data: error?.response?.data,
+      message: error.message,
+    });
+
+    return {
+      success: false,
+      message: error?.response?.data?.message || "Something went wrong"
+    };
+  }
+}

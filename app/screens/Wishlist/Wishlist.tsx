@@ -69,14 +69,16 @@ const Wishlist = ({ navigation }: WishlistScreenProps) => {
                       product,
                     })
                   }
-                  onPress4={() => {
-                    addItemToCart({
-                      ...product,
-                      quantity: product.quantity ?? 1,
-                    });
-                    navigation.navigate('MyCart');
-                  }}
+              onPress4={() => {
+  addItemToCart({
+    ...product,
+    quantity: product.quantity ?? 1,
+  });
+  navigation.navigate('ProductsDetails', { product });
+}}
                 />
+
+
               </View>
             ))}
           </View>
