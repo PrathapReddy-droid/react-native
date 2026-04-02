@@ -1,29 +1,27 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiClient from "./BASEURL";
 
-export const productList =async(id)=>{
-  const token = await AsyncStorage.getItem('AccessToken')
-      try {
-    const response = await apiClient.get(`/api/product/getAllProductsByCatId/${id}`,{
-           headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-    console.log(response.products,"=========================here i am calling")
-    return response.products; // return only useful data
-  } catch (error) {
-    console.error('Home API Error:', {
-      url: error?.config?.baseURL + error?.config?.url,
-      status: error?.response?.status,
-      data: error?.response?.data,
-      message: error.message,
-    });
-
-    // rethrow so caller can handle it
-    throw error;
-  }
+export const productList = async (id, page = 1, perPage = 10) => {
+    const token = await AsyncStorage.getItem('AccessToken')
+    try {
+        const response = await apiClient.get(`/api/product/getAllProductsByCatId/${id}`, {
+            params: { page, perPage },  // ← pass page & perPage as query params
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        console.log(response.products, "=========================here i am calling")
+        return response.products;
+    } catch (error) {
+        console.error('Home API Error:', {
+            url: error?.config?.baseURL + error?.config?.url,
+            status: error?.response?.status,
+            data: error?.response?.data,
+            message: error.message,
+        });
+        throw error;
+    }
 }
 export const productdelieverytime = async(payload)=>{
   const token = await AsyncStorage.getItem('AccessToken')

@@ -107,8 +107,9 @@ const ProductsDetails = ({ navigation }: ProductsDetailsScreenProps) => {
   /* ---------------- WISHLIST ---------------- */
 
   const handleWishlist = () => {
+    console.log(product,"=========================wwwww")
     setWishListed(w => !w);
-    dispatch(addTowishList({ product }));
+    dispatch(addTowishList({ ...product }));
   };
 
   /* ---------------- SHARE ---------------- */

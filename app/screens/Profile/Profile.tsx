@@ -20,7 +20,7 @@ const btnData = [
       navigate: 'Wishlist',
   },
   {
-      title: "Coupons",
+      title: "Wallet",
       navigate: 'Coupons',
   },
   {

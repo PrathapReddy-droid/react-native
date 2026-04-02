@@ -1,148 +1,309 @@
-import { View, Text,  Platform, ScrollView, Image } from 'react-native'
-import React from 'react'
+// screens/Coupons/Coupons.tsx
+
+import { View, Text, ScrollView, TouchableOpacity, LayoutAnimation, Platform, UIManager } from 'react-native'
+import React, { useState } from 'react'
 import { useTheme } from '@react-navigation/native';
 import Header from '../../layout/Header';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { IMAGES } from '../../constants/Images';
-import Divider from '../../components/Dividers/Divider';
-import Button from '../../components/Button/Button';
 import { COLORS, FONTS } from '../../constants/theme';
+import { useSelector } from 'react-redux';
+import FeatherIcon from 'react-native-vector-icons/Feather';
 
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
+type FilterType = 'ALL' | 'CREDIT' | 'DEBIT';
 
-const CouponsData = [
-    {
-        title: "Home Decor",
-        text: "On minimum purchase of Rs. 1,999",
-        offer: "20%\nOff",
-    },
-    {
-        title: "Home Furnishing",
-        text: "On minimum purchase of Rs. 2,999",
-        offer: "50%\nOff",
-    },
-    {
-        title: "Mobile Accessories",
-        text: "On minimum purchase of Rs. 999",
-        offer: "25%\nOff",
-    },
-]
-
-const adsData = [
-    {
-        image: IMAGES.ads2,
-        title: "Get Flat $75 Back",
-        offer: "Up to 40% Off",
-    },
-    {
-        image: IMAGES.ads3,
-        title: "Get Flat $85 Back",
-        offer: "Up to 70% Off",
-    },
-    {
-        image: IMAGES.ads2,
-        title: "Get Flat $95 Back",
-        offer: "Up to 60% Off",
-    },
-    {
-        image: IMAGES.ads3,
-        title: "Get Flat $86 Back",
-        offer: "Up to 90% Off",
-    },
-]
+type Transaction = {
+  _id: string;
+  amount: number;
+  type: 'CREDIT' | 'DEBIT';
+  reason: string;
+  orderId: string;
+  createdAt: string;
+};
 
 const Coupons = () => {
 
-    const theme = useTheme();
-    const { colors } : {colors : any} = theme;
+  const theme = useTheme();
+  const { colors }: { colors: any } = theme;
 
+  // ── Exact Redux shape from your store ────────────────────────────────────
+  const user = useSelector((state: any) => state.user?.selectedUser);
 
-    return (
-       <View style={{backgroundColor:colors.background,flex:1}}>
-            <Header
-                title='Coupons'
-                leftIcon='back'
-                //titleLeft
-                titleRight
-            />
-            <ScrollView contentContainerStyle={{flexGrow:1}}>
-                <View style={GlobalStyleSheet.container}>
-                    <View>
-                        {CouponsData.map((data:any, index) => {
-                            return (
-                                <View key={index} style={{ height: 78, width: '100%', borderRadius: 12, backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card, padding: 15, flexDirection: 'row', alignItems: 'center', gap: 40, marginBottom: 15, }}>
-                                    <Text style={{ ...FONTS.fontRegular, fontSize: 16, color: colors.title, marginLeft: 10 }}>{data.offer}</Text>
-                                    <View style={{ transform: [{ rotate: '90deg' }], width: 60, position: 'absolute', top: 25, left: 45 }}>
-                                        <Divider dashed color={theme.dark ? 'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'} />
-                                    </View>
-                                    <View style={{flex:1}}>
-                                        <Text style={{ ...FONTS.fontMedium, fontSize: 16, color: colors.title }}>{data.title}</Text>
-                                        <Text style={{ ...FONTS.fontRegular, fontSize: 14, color: colors.title, opacity: 0.6 }}>{data.text}</Text>
-                                    </View>
-                                </View>
-                            )
-                        })}
-                    </View>
-                    <View style={{ marginVertical: 20, marginTop: 10, borderBottomWidth: 1, borderBottomColor:COLORS.primaryLight, marginHorizontal: -15, paddingHorizontal: 15, paddingBottom: 15 }}>
-                        <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>Discount On Your Sale</Text>
-                    </View>
-                    <View style={{ marginHorizontal: -15, borderBottomWidth: 1, borderBottomColor:COLORS.primaryLight, paddingBottom: 20 }}>
-                        <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ paddingHorizontal: 15, marginRight: 10 }}
-                        >
-                            {adsData.map((data, index) => {
-                                return (
-                                    <View key={index} style={{ marginRight: 20 }}>
-                                        <Image
-                                            style={{ width: 165, height: 93, borderRadius: 12 }}
-                                            source={data.image}
-                                        />
-                                    </View>
-                                )
-                            })}
-                        </ScrollView>
-                    </View>
-                    <View>
-                        <View style={{ paddingVertical: 15 }}>
-                            <Text style={{ ...FONTS.fontMedium, fontSize: 18, color: colors.title }}>Featured Offer For You</Text>
-                        </View>
-                        <View style={{ marginHorizontal: -15, borderBottomWidth: 1, borderBottomColor:COLORS.primaryLight, paddingBottom: 20 }}>
-                            <ScrollView
-                                horizontal
-                                showsHorizontalScrollIndicator={false}
-                                contentContainerStyle={{ paddingHorizontal: 15, marginRight: 10 }}
-                            >
-                                {adsData.map((data:any, index) => {
-                                    return (
-                                        <View key={index} style={{ marginRight: 15, height: 219, width: 188, backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card, borderRadius: 15, alignItems: 'center', paddingTop: 5, paddingBottom: 10 }}>
-                                            <Image
-                                                style={{ width: 178, height: 100, borderRadius: 12 }}
-                                                source={data.image}
-                                            />
-                                            <View style={{ marginTop: 10, alignItems: 'center' }}>
-                                                <Text style={{ ...FONTS.fontMedium, fontSize: 14, color: colors.title }}>{data.title}</Text>
-                                                <Text style={{ ...FONTS.fontMedium, fontSize: 13, color: COLORS.danger }}>{data.offer}</Text>
-                                            </View>
-                                            <View style={{ width: '100%', paddingHorizontal: 15, marginTop: 10 }}>
-                                                <Button
-                                                    title={'Collect Now'}
-                                                    size={"sm"}
-                                                    text={COLORS.title}
-                                                    color={COLORS.secondary}
-                                                />
-                                            </View>
-                                        </View>
-                                    )
-                                })}
-                            </ScrollView>
-                        </View>
-                    </View>
+  const balance: number             = user?.wallet?.balance ?? 0;
+  const transactions: Transaction[] = user?.wallet?.transactions ?? [];
+  const userName: string            = user?.name ?? 'User';
+
+  const [activeFilter, setActiveFilter] = useState<FilterType>('ALL');
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  const totalCredit = transactions
+    .filter(t => t.type === 'CREDIT')
+    .reduce((s, t) => s + t.amount, 0);
+
+  const totalDebit = transactions
+    .filter(t => t.type === 'DEBIT')
+    .reduce((s, t) => s + t.amount, 0);
+
+  const totalTxns = transactions.length;
+
+  // ── Filter + sort newest first ────────────────────────────────────────────
+  const filtered = transactions
+    .filter(t => activeFilter === 'ALL' || t.type === activeFilter)
+    .slice()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  const formatTime = (iso: string) =>
+    new Date(iso).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  // ── Group by date ─────────────────────────────────────────────────────────
+  const grouped: { [date: string]: Transaction[] } = {};
+  filtered.forEach(t => {
+    const key = formatDate(t.createdAt);
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(t);
+  });
+
+  return (
+    <View style={{ backgroundColor: colors.background, flex: 1 }}>
+      <Header title="My Wallet" leftIcon="back" titleRight />
+
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}>
+
+        {/* ── Balance Card ───────────────────────────────────────────────── */}
+        <View style={{
+          marginHorizontal: 15,
+          marginTop: 20,
+          borderRadius: 24,
+          backgroundColor: COLORS.primary,
+          padding: 22,
+        }}>
+
+          {/* Greeting + icon */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <View>
+              <Text style={[FONTS.fontRegular, { fontSize: 13, color: 'rgba(255,255,255,0.70)', marginBottom: 4 }]}>
+                Hello, {userName} 👋
+              </Text>
+              <Text style={[FONTS.fontRegular, { fontSize: 13, color: 'rgba(255,255,255,0.70)', marginBottom: 6 }]}>
+                Available Balance
+              </Text>
+              <Text style={[FONTS.fontMedium, { fontSize: 40, color: '#fff', letterSpacing: 0.5 }]}>
+                ₹{balance}
+              </Text>
+            </View>
+            <View style={{
+              backgroundColor: 'rgba(255,255,255,0.18)',
+              borderRadius: 50,
+              height: 52, width: 52,
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <FeatherIcon name="credit-card" size={24} color="#fff" />
+            </View>
+          </View>
+
+          {/* Divider */}
+          <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.18)', marginVertical: 18 }} />
+
+          {/* 3-stat row */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+
+            {/* Credits */}
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 4 }}>
+                  <FeatherIcon name="arrow-down-left" size={12} color="#fff" />
                 </View>
-            </ScrollView>
-       </View>
-    )
-}
+                <Text style={[FONTS.fontRegular, { fontSize: 11, color: 'rgba(255,255,255,0.7)' }]}>Credits</Text>
+              </View>
+              <Text style={[FONTS.fontMedium, { fontSize: 16, color: '#fff' }]}>₹{totalCredit}</Text>
+            </View>
 
-export default Coupons
+            <View style={{ width: 1, height: 36, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+
+            {/* Debits */}
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 4 }}>
+                  <FeatherIcon name="arrow-up-right" size={12} color="#fff" />
+                </View>
+                <Text style={[FONTS.fontRegular, { fontSize: 11, color: 'rgba(255,255,255,0.7)' }]}>Debits</Text>
+              </View>
+              <Text style={[FONTS.fontMedium, { fontSize: 16, color: '#fff' }]}>₹{totalDebit}</Text>
+            </View>
+
+            <View style={{ width: 1, height: 36, backgroundColor: 'rgba(255,255,255,0.2)' }} />
+
+            {/* Total transactions */}
+            <View style={{ alignItems: 'center', flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 4 }}>
+                <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20, padding: 4 }}>
+                  <FeatherIcon name="list" size={12} color="#fff" />
+                </View>
+                <Text style={[FONTS.fontRegular, { fontSize: 11, color: 'rgba(255,255,255,0.7)' }]}>Total</Text>
+              </View>
+              <Text style={[FONTS.fontMedium, { fontSize: 16, color: '#fff' }]}>{totalTxns}</Text>
+            </View>
+
+          </View>
+        </View>
+
+        {/* ── Transactions ───────────────────────────────────────────────── */}
+        <View style={[GlobalStyleSheet.container, { marginTop: 24 }]}>
+
+          <Text style={[FONTS.fontMedium, { fontSize: 17, color: colors.title, marginBottom: 14 }]}>
+            Transactions
+          </Text>
+
+          {/* Filter pill tabs */}
+          <View style={{
+            flexDirection: 'row',
+            backgroundColor: theme.dark ? 'rgba(255,255,255,0.08)' : '#F4F4F8',
+            borderRadius: 30,
+            padding: 4,
+            marginBottom: 22,
+          }}>
+            {(['ALL', 'CREDIT', 'DEBIT'] as FilterType[]).map(f => (
+              <TouchableOpacity
+                key={f}
+                onPress={() => {
+                  LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+                  setActiveFilter(f);
+                }}
+                activeOpacity={0.8}
+                style={{
+                  flex: 1,
+                  paddingVertical: 9,
+                  borderRadius: 26,
+                  alignItems: 'center',
+                  backgroundColor:
+                    activeFilter === f
+                      ? f === 'DEBIT'   ? COLORS.danger
+                      : f === 'CREDIT'  ? COLORS.success
+                      : COLORS.primary
+                      : 'transparent',
+                }}
+              >
+                <Text style={[FONTS.fontMedium, {
+                  fontSize: 13,
+                  color: activeFilter === f
+                    ? '#fff'
+                    : theme.dark ? 'rgba(255,255,255,0.45)' : '#999',
+                }]}>
+                  {f === 'ALL'    ? `All (${totalTxns})`
+                  : f === 'CREDIT' ? `Credit (${transactions.filter(t => t.type === 'CREDIT').length})`
+                  : `Debit (${transactions.filter(t => t.type === 'DEBIT').length})`}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Grouped transaction list */}
+          {Object.keys(grouped).length === 0 ? (
+            <View style={{ alignItems: 'center', marginTop: 60, gap: 12 }}>
+              <FeatherIcon name="inbox" size={48} color={colors.title} style={{ opacity: 0.15 }} />
+              <Text style={[FONTS.fontRegular, { color: colors.title, opacity: 0.4, fontSize: 14 }]}>
+                No transactions found
+              </Text>
+            </View>
+          ) : (
+            Object.entries(grouped).map(([date, txns]) => (
+              <View key={date} style={{ marginBottom: 16 }}>
+
+                {/* Date label */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <Text style={[FONTS.fontMedium, { fontSize: 12, color: colors.title, opacity: 0.4 }]}>
+                    {date}
+                  </Text>
+                  <View style={{ flex: 1, height: 1, backgroundColor: COLORS.primaryLight }} />
+                </View>
+
+                {/* Cards */}
+                {txns.map((txn, idx) => (
+                  <View
+                    key={txn._id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      backgroundColor: theme.dark ? 'rgba(255,255,255,0.07)' : colors.card,
+                      borderRadius: 16,
+                      padding: 14,
+                      marginBottom: idx < txns.length - 1 ? 8 : 0,
+                      gap: 14,
+                    }}
+                  >
+                    {/* Icon bubble */}
+                    <View style={{
+                      height: 46, width: 46,
+                      borderRadius: 23,
+                      alignItems: 'center', justifyContent: 'center',
+                      backgroundColor: txn.type === 'CREDIT'
+                        ? 'rgba(39,174,96,0.12)'
+                        : 'rgba(231,76,60,0.12)',
+                    }}>
+                      <FeatherIcon
+                        name={txn.type === 'CREDIT' ? 'arrow-down-left' : 'arrow-up-right'}
+                        size={19}
+                        color={txn.type === 'CREDIT' ? COLORS.success : COLORS.danger}
+                      />
+                    </View>
+
+                    {/* Middle: reason + orderId + time */}
+                    <View style={{ flex: 1 }}>
+                      <Text style={[FONTS.fontMedium, { fontSize: 13, color: colors.title }]} numberOfLines={1}>
+                        {txn.reason}
+                      </Text>
+                      <Text style={[FONTS.fontRegular, {
+                        fontSize: 11, color: colors.title, opacity: 0.45, marginTop: 2,
+                      }]} numberOfLines={1}>
+                        {txn.orderId}
+                      </Text>
+                      <Text style={[FONTS.fontRegular, {
+                        fontSize: 10, color: colors.title, opacity: 0.3, marginTop: 2,
+                      }]}>
+                        {formatTime(txn.createdAt)}
+                      </Text>
+                    </View>
+
+                    {/* CREDIT / DEBIT badge + amount */}
+                    <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                      <Text style={[FONTS.fontMedium, {
+                        fontSize: 15,
+                        color: txn.type === 'CREDIT' ? COLORS.success : COLORS.danger,
+                      }]}>
+                        {txn.type === 'CREDIT' ? '+' : '-'}₹{txn.amount}
+                      </Text>
+                      <View style={{
+                        paddingHorizontal: 7, paddingVertical: 2,
+                        borderRadius: 20,
+                        backgroundColor: txn.type === 'CREDIT'
+                          ? 'rgba(39,174,96,0.10)'
+                          : 'rgba(231,76,60,0.10)',
+                      }}>
+                        <Text style={[FONTS.fontRegular, {
+                          fontSize: 10,
+                          color: txn.type === 'CREDIT' ? COLORS.success : COLORS.danger,
+                        }]}>
+                          {txn.type}
+                        </Text>
+                      </View>
+                    </View>
+
+                  </View>
+                ))}
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </View>
+  );
+};
+
+export default Coupons;

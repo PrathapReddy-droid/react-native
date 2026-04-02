@@ -62,6 +62,7 @@ const Cardstyle1 = ({
   );
 
   const toggleWishlist = () => {
+    console.log(product,"==============================wwww")
     if (isInWishlist) {
       dispatch(removeFromwishList(id));
     } else {

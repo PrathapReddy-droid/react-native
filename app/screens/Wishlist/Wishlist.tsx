@@ -20,6 +20,7 @@ const Wishlist = ({ navigation }: WishlistScreenProps) => {
   const wishList = useSelector(
     (state: any) => state.wishList.wishList
   );
+  console.log(wishList,"==============================whist")
 
   const dispatch = useDispatch();
   const { colors } = useTheme();

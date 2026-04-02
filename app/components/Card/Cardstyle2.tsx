@@ -7,6 +7,7 @@ import CheckoutItems from '../CheckoutItems';
 import { IMAGES } from '../../constants/Images';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
+import ProductRating from '../../screens/Category/ProductRating';
 
 type Props = {
     title : string;
@@ -80,11 +81,8 @@ const Cardstyle2 = ({
                     <Text style={[FONTS.fontRegular, { fontSize: 12, color: COLORS.danger }]}>{offer}</Text>
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 2 }}>
-                    <Image
-                        style={{ height: 12, width: 64 }}
-                        source={IMAGES.star7}
-                    />
-                    <Text style={[FONTS.fontRegular, { fontSize: 12, color: colors.title, opacity: .5 }]}>(270 Review)</Text>
+              <ProductRating productId={id} />
+
                 </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 }}>
                     <Image

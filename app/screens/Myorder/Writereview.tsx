@@ -97,6 +97,7 @@ const WriteReview = () => {
                     title={item.title}
                     price={`₹${item.price}`}
                     image={item.image}
+                    id={item.productId}
                     removebottom
                     onPress={() => toggle(index)}
                   />
