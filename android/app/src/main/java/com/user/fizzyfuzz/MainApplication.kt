@@ -1,4 +1,4 @@
-package com.slvd.fizzyfuzz
+package com.user.fizzyfuzz
 
 import android.app.Application
 import com.facebook.react.PackageList
