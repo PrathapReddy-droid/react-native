@@ -27,7 +27,7 @@ android {
     // ✅ FIX: Add signingConfigs block
     signingConfigs {
         release {
-            storeFile file('my-fizzyfuzz-key.jks')
+            storeFile file('my-release-key.jks')
             storePassword 'fizzyfuzz'
             keyAlias 'my-key-alias'
             keyPassword 'fizzyfuzz'
