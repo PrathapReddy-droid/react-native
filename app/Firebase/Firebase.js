@@ -1,13 +1,31 @@
-import { initializeApp } from 'firebase/app';
+import messaging from '@react-native-firebase/messaging';
+import { FcmToken } from '../Api/User';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBjatuq2mH3Wt2ar5jtl4TQAdED2B4-77Y",
-  authDomain: "com.user.fizzyfuzz",
-  projectId: "fizzyfuzz-98596",
-  storageBucket: "fizzyfuzz-98596.firebasestorage.app",
-  appId: "com.user.fizzyfuzz",
-};
+export async function getFCMToken(id) {
+  const authStatus = await messaging().requestPermission();
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-const app = initializeApp(firebaseConfig);
+  if (!enabled) {
+    console.log('Permission denied');
+    return null;
+  }
 
-export default app;
+  const token = await messaging().getToken();
+  let data = {
+    id:id,
+    token :token
+  }
+  console.log('FCM Token:', token,data);
+  await FcmToken(data);
+  return token;
+}
+
+export function setupTokenRefreshListener() {
+  return messaging().onTokenRefresh(async (newToken) => {
+
+    console.log('Token refreshed:', newToken);
+    await FcmToken(newToken);
+  });
+}

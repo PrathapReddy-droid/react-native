@@ -6,7 +6,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { useTheme } from '@react-navigation/native';
@@ -21,6 +21,7 @@ import { getUserDetails, loginApi } from '../../Api/User';
 import { hydrateUser, setselectedUser } from '../../redux/reducer/User';
 import { useDispatch } from 'react-redux';
 import { saveUserToStorage } from '../../redux/reducer/userStorage';
+import { getFCMToken, setupTokenRefreshListener } from '../../Firebase/Firebase';
 
 type SingInScreenProps = StackScreenProps<RootStackParamList, 'SingIn'>;
 
@@ -32,8 +33,11 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [user,setUser] = useState()
   const [loading, setLoading] = useState(false);
 const dispatch = useDispatch()
+
+
   const handleContinue = async () => {
     if (loading) return;
 
@@ -46,11 +50,15 @@ const dispatch = useDispatch()
       setLoading(true);
 
       await loginApi({email:email,password:password})
+      
       getUserDetails().then(async data=>{
+
        dispatch(setselectedUser(data.data)) 
+       setUser(data.data)
   await saveUserToStorage(data.data);
 
       })
+
 
       Toast.show('Login Successful', Toast.LONG);
 
@@ -78,6 +86,13 @@ const dispatch = useDispatch()
       setLoading(false);
     }
   };
+                useEffect(() => {
+  getFCMToken(user?._id);
+
+  // Returns an unsubscribe function — clean up on unmount
+  const unsubscribe = setupTokenRefreshListener(user?._id);
+  return unsubscribe;
+}, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.primary }}>

@@ -49,6 +49,23 @@ export const AddressApi = async()=>{
     throw error; // IMPORTANT: rethrow
   }
 }
+export const FcmToken = async(data)=>{
+      try{
+
+  const response = await apiClient.post('/api/user/updateFCM-token',{
+    ...data,
+      headers: {
+    'Content-Type': 'application/json',
+  },
+  })
+  return response
+  console.log(response)
+}catch(error){
+        console.log('Register API Error:', error.response?.data || error.message);
+    throw error; // IMPORTANT: rethrow
+  }
+
+}
 export const VerifyEmailApi = async(data)=>{
     try{
     const response = await apiClient.post('/api/user/verifyEmail', {

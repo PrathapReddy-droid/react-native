@@ -1,34 +1,76 @@
 import 'react-native-gesture-handler';
-import React, { Component } from 'react';
-// import SplashScreen from 'react-native-splash-screen';
+import React, { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { Provider } from 'react-redux';
+import { Provider, useSelector } from 'react-redux';
 import Route from './app/navigation/Route';
 import store from './app/redux/store';
-import './app/Firebase/Firebase'
+import './app/Firebase/Firebase';
+import messaging from '@react-native-firebase/messaging';
+import { getFCMToken, setupTokenRefreshListener } from './app/Firebase/Firebase';
 
-export default class App extends Component {
+/**
+ * 🔹 Main App Logic Component (Redux available here)
+ */
+function MainApp() {
+  const user = useSelector((state: any) => state.user.selectedUser);
 
-  // componentDidMount() {
-  //   SplashScreen.hide();
-  // }
+  useEffect(() => {
+    // 🚫 Prevent crash if user not loaded yet
+    if (!user?._id) return;
 
-  render() {
+    // ✅ Generate FCM token
+    getFCMToken(user?._id);
 
-    return (
+    // ✅ Token refresh listener
+    const unsubscribeRefresh = setupTokenRefreshListener(user?._id);
+
+    // ✅ Foreground notification
+    const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
+      console.log('Foreground notification:', remoteMessage);
+
+      Alert.alert(
+        remoteMessage.notification?.title ?? 'Notification',
+        remoteMessage.notification?.body ?? ''
+      );
+    });
+
+    // ✅ Background — user taps notification
+    const unsubscribeOpened = messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('Background tap:', remoteMessage);
+    });
+
+    // ✅ Quit state — user taps notification
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log('Quit state tap:', remoteMessage);
+        }
+      });
+
+    // ✅ Cleanup
+    return () => {
+      unsubscribeForeground();
+      unsubscribeRefresh();
+      unsubscribeOpened();
+    };
+  }, [user]);
+
+  return <Route />;
+}
+
+/**
+ * 🔹 Root Component (Provider must wrap everything)
+ */
+export default function App() {
+  return (
+    <Provider store={store}>
       <SafeAreaProvider>
-        <SafeAreaView
-          style={{
-            flex: 1,
-            //paddingTop: Platform.OS === 'android' ? 25 : 0,
-            //backgroundColor:COLORS.primary ,
-          }}>
-              <Provider store={store}>
-                <Route/>
-              </Provider>
+        <SafeAreaView style={{ flex: 1 }}>
+          <MainApp />
         </SafeAreaView>
-    </SafeAreaProvider>
-    );
-  }
-
-};
+      </SafeAreaProvider>
+    </Provider>
+  );
+}
