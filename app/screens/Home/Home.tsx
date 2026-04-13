@@ -256,13 +256,13 @@ const Home = ({ navigation }: HomeScreenProps) => {
                             <Image source={{ uri: data.image }} style={{ position: 'absolute', width: '100%', height: '100%' }} resizeMode="cover" />
                             <View style={[GlobalStyleSheet.container, { paddingHorizontal: 30, flex: 1, justifyContent: 'center' }]}>
                                 <View style={{ width: '50%' }}>
-                                    <Button
+                                    {/* <Button
                                         title="Buy Now"
                                         size="sm"
                                         color={COLORS.white}
                                         text={COLORS.title}
                                         onPress={() => navigation.navigate('ProductsDetails', { product: data })}
-                                    />
+                                    /> */}
                                 </View>
                             </View>
                         </View>

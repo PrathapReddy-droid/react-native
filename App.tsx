@@ -9,47 +9,39 @@ import './app/Firebase/Firebase';
 import messaging from '@react-native-firebase/messaging';
 import { getFCMToken, setupTokenRefreshListener } from './app/Firebase/Firebase';
 
-/**
- * 🔹 Main App Logic Component (Redux available here)
- */
+// ❌ Remove these two imports — no modal logic in App.tsx
+// import { authEvents, AUTH_MODAL_OPEN } from './app/Api/AuthEvents';
+// import AuthModal from './app/screens/Payment/AuthModel';
+
 function MainApp() {
   const user = useSelector((state: any) => state.user.selectedUser);
 
+  // ❌ Remove the authModalRef and authEvents useEffect entirely
+
   useEffect(() => {
-    // 🚫 Prevent crash if user not loaded yet
     if (!user?._id) return;
 
-    // ✅ Generate FCM token
     getFCMToken(user?._id);
-
-    // ✅ Token refresh listener
     const unsubscribeRefresh = setupTokenRefreshListener(user?._id);
 
-    // ✅ Foreground notification
     const unsubscribeForeground = messaging().onMessage(async remoteMessage => {
       console.log('Foreground notification:', remoteMessage);
-
       Alert.alert(
         remoteMessage.notification?.title ?? 'Notification',
         remoteMessage.notification?.body ?? ''
       );
     });
 
-    // ✅ Background — user taps notification
     const unsubscribeOpened = messaging().onNotificationOpenedApp(remoteMessage => {
       console.log('Background tap:', remoteMessage);
     });
 
-    // ✅ Quit state — user taps notification
     messaging()
       .getInitialNotification()
       .then(remoteMessage => {
-        if (remoteMessage) {
-          console.log('Quit state tap:', remoteMessage);
-        }
+        if (remoteMessage) console.log('Quit state tap:', remoteMessage);
       });
 
-    // ✅ Cleanup
     return () => {
       unsubscribeForeground();
       unsubscribeRefresh();
@@ -57,12 +49,10 @@ function MainApp() {
     };
   }, [user]);
 
+  // ❌ Remove <AuthModal> from here
   return <Route />;
 }
 
-/**
- * 🔹 Root Component (Provider must wrap everything)
- */
 export default function App() {
   return (
     <Provider store={store}>
