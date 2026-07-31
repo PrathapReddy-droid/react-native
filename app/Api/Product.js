@@ -10,6 +10,7 @@ export const productList = async (id, page = 1, perPage = 10) => {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
+            skipAuthModal: true,
         });
         console.log(response.products, "=========================here i am calling")
         return response.products;
@@ -53,6 +54,7 @@ export const VideoApi = async()=>{
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
+        skipAuthModal: true,
       }
       
     )

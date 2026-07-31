@@ -1,4 +1,4 @@
-package com.user.fizzyfuzz
+package com.app.user.fizzyfuzz
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

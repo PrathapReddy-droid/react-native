@@ -22,10 +22,14 @@ apiClient.interceptors.response.use(
   response => response.data,
   async error => {
     const status = error?.response?.status;
+    const skipAuthModal = error?.config?.skipAuthModal;
 
     if (status === 401) {
       await AsyncStorage.removeItem('AccessToken');
-      openAuthModal(); // 👈 triggers the modal
+
+      if (!skipAuthModal) {
+        openAuthModal();
+      }
     }
 
     console.log('API Error:', error?.message || error);
