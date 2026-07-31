@@ -7,6 +7,8 @@ import ChooseLanguage from '../screens/Auth/ChooseLanguage';
 import SignUp from '../screens/Auth/SignUp';
 import SingIn from '../screens/Auth/SingIn';
 import OTPAuthentication from '../screens/Auth/OTPAuthentication';
+import ForgotPassword from '../screens/Auth/ForgotPassword';
+import VerifyOtp from '../screens/Auth/VerifyOtp';
 import BottomNavigation from './BottomNavigation';
 import DrawerNavigation from './DrawerNavigation';
 import Search from '../screens/Search/Search';
@@ -76,7 +78,7 @@ const StackNavigator = () => {
       (screen: string) => navigation.navigate(screen as never)
     );
     return () => {
-      setHandler(() => {}, () => {});
+      setHandler(() => { }, () => { });
     };
   }, [navigation]);
 
@@ -104,6 +106,11 @@ const StackNavigator = () => {
         <Stack.Screen name="AuthLoading" component={AuthLoading} />
         <Stack.Screen name="SingIn" component={SingIn} />
         <Stack.Screen name="OTPAuthentication" component={OTPAuthentication} />
+
+        {/* New: forgot-password + OTP verification flow */}
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
+
         <Stack.Screen name="BottomNavigation" component={BottomNavigation} />
         <Stack.Screen name="DrawerNavigation" component={DrawerNavigation} />
         <Stack.Screen name="Home" component={Home} />

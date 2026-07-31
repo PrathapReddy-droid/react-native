@@ -6,7 +6,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { useTheme } from '@react-navigation/native';
@@ -15,13 +15,8 @@ import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/RootStackParamList';
 import Input from '../../components/Input/Input';
 import Button from '../../components/Button/Button';
-import auth from '@react-native-firebase/auth';
 import Toast from 'react-native-simple-toast';
-import { getUserDetails, loginApi } from '../../Api/User';
-import { hydrateUser, setselectedUser } from '../../redux/reducer/User';
-import { useDispatch } from 'react-redux';
-import { saveUserToStorage } from '../../redux/reducer/userStorage';
-import { getFCMToken, setupTokenRefreshListener } from '../../Firebase/Firebase';
+import { loginApi } from '../../Api/User';
 
 type SingInScreenProps = StackScreenProps<RootStackParamList, 'SingIn'>;
 
@@ -33,10 +28,7 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [user,setUser] = useState()
   const [loading, setLoading] = useState(false);
-const dispatch = useDispatch()
-
 
   const handleContinue = async () => {
     if (loading) return;
@@ -49,50 +41,38 @@ const dispatch = useDispatch()
     try {
       setLoading(true);
 
-      await loginApi({email:email,password:password})
-      
-      getUserDetails().then(async data=>{
+      const res = await loginApi({ email, password });
+      console.log(res)
+      const body = res?.data;
 
-       dispatch(setselectedUser(data.data)) 
-       setUser(data.data)
-  await saveUserToStorage(data.data);
-
-      })
-
-
-      Toast.show('Login Successful', Toast.LONG);
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
-      });
-    } catch (error: any) {
-      console.log('🔥 Login Error:', error.code, error.message);
-
-      switch (error.code) {
-        case 'auth/user-not-found':
-          Toast.show('User not found. Please sign up.', Toast.LONG);
-          break;
-        case 'auth/wrong-password':
-          Toast.show('Incorrect password', Toast.LONG);
-          break;
-        case 'auth/invalid-email':
-          Toast.show('Invalid email address', Toast.LONG);
-          break;
-        default:
-          Toast.show(error.message || 'Login failed', Toast.LONG);
+      // Backend returned 200 but with error:true in body (e.g. "Check your password")
+      if (body?.error) {
+        Toast.show(body.message || 'Login failed', Toast.LONG);
+        return;
       }
+
+      // Case 1: OTP required — do NOT go to home yet, go verify first
+      if (res?.otpRequired) {
+        Toast.show(body.message || 'OTP sent', Toast.LONG);
+        navigation.navigate('VerifyOtp', {
+          type: 'login',
+          sessionToken: body.sessionToken,
+          mobile: body.mobile,
+        });
+        return;
+      }
+
+      // Case 2 (fallback): if backend ever returns tokens directly without OTP,
+      // this branch is unused by your current API but kept safe/defensive.
+      Toast.show('Login Successful', Toast.LONG);
+    } catch (error: any) {
+      console.log('🔥 Login Error:', error?.response?.data || error.message);
+      const serverMsg = error?.response?.data?.message;
+      Toast.show(serverMsg || error.message || 'Login failed', Toast.LONG);
     } finally {
       setLoading(false);
     }
   };
-                useEffect(() => {
-  getFCMToken(user?._id);
-
-  // Returns an unsubscribe function — clean up on unmount
-  const unsubscribe = setupTokenRefreshListener(user?._id);
-  return unsubscribe;
-}, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.primary }}>
@@ -169,7 +149,6 @@ const dispatch = useDispatch()
                   Use Email Id
                 </Text>
               </TouchableOpacity>
-  
             </View>
 
             {/* Email */}
@@ -196,6 +175,25 @@ const dispatch = useDispatch()
                 onChangeText={setPassword}
                 style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
               />
+
+              {/* Forgot Password */}
+              <TouchableOpacity
+                style={{ alignSelf: 'flex-end', marginTop: 8 }}
+                onPress={() => navigation.navigate('ForgotPassword')}
+              >
+                <Text
+                  style={[
+                    FONTS.fontMedium,
+                    {
+                      fontSize: 13,
+                      color: COLORS.primary,
+                      textDecorationLine: 'underline',
+                    },
+                  ]}
+                >
+                  Forgot Password?
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <View style={{ paddingTop: 10 }}>

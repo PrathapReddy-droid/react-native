@@ -13,13 +13,13 @@ import auth from '@react-native-firebase/auth';
 
 
 type Props = {
-    moresheet2 ?: any;
+    moresheet2?: any;
 }
 
-const SkipLoginSheet = ({moresheet2} : Props) => {
+const SkipLoginSheet = ({ moresheet2 }: Props) => {
 
     const theme = useTheme();
-    const { colors } : {colors : any} = theme;
+    const { colors }: { colors: any } = theme;
 
     const navigation = useNavigation<any>();
 
@@ -81,61 +81,61 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
             } finally {
                 setLoading(false);
             }
-        }if (!email || !password) {
-                return Toast.show('Please enter email and password', Toast.LONG);
-            }
+        } if (!email || !password) {
+            return Toast.show('Please enter email and password', Toast.LONG);
+        }
 
-            try {
-                setLoading(true);
-                
-                // Try logging in
-                await auth().signInWithEmailAndPassword(email, password);
-                Toast.show('Login Successful', Toast.LONG);
+        try {
+            setLoading(true);
 
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
-                });
+            // Try logging in
+            await auth().signInWithEmailAndPassword(email, password);
+            Toast.show('Login Successful', Toast.LONG);
 
-            } catch (error: any) {
-                if (error.code === 'auth/user-not-found') {
-                    try {
-                        // Register the user
-                        await auth().createUserWithEmailAndPassword(email, password);
-                        Toast.show('Registered and Logged in Successfully', Toast.LONG);
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
+            });
 
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
-                        });
+        } catch (error: any) {
+            if (error.code === 'auth/user-not-found') {
+                try {
+                    // Register the user
+                    await auth().createUserWithEmailAndPassword(email, password);
+                    Toast.show('Registered and Logged in Successfully', Toast.LONG);
 
-                    } catch (registerError: any) {
-                        Toast.show(`Registration failed: ${registerError.message}`, Toast.LONG);
-                    }
-                } else {
-                    // Handle login errors
-                    switch (error.code) {
-                        
-                        case 'auth/wrong-password':
-                            Toast.show('Incorrect password.', Toast.LONG);
-                            break;
-                        case 'auth/invalid-email':
-                            Toast.show('Invalid email address.', Toast.LONG);
-                            break;
-                        case 'auth/invalid-credential':
-                            Toast.show('Incorrect credentials.', Toast.LONG);
-                            break;
-                        case 'auth/user-not-found':
-                            Toast.show('User not found. Please sign up first.', Toast.LONG);
-                            break;
-                        default:
-                            Toast.show(`Login failed: ${error?.message || 'Something went wrong'}`, Toast.LONG);
-                            break;
-                    }
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
+                    });
+
+                } catch (registerError: any) {
+                    Toast.show(`Registration failed: ${registerError.message}`, Toast.LONG);
                 }
-            } finally {
-                setLoading(false);
+            } else {
+                // Handle login errors
+                switch (error.code) {
+
+                    case 'auth/wrong-password':
+                        Toast.show('Incorrect password.', Toast.LONG);
+                        break;
+                    case 'auth/invalid-email':
+                        Toast.show('Invalid email address.', Toast.LONG);
+                        break;
+                    case 'auth/invalid-credential':
+                        Toast.show('Incorrect credentials.', Toast.LONG);
+                        break;
+                    case 'auth/user-not-found':
+                        Toast.show('User not found. Please sign up first.', Toast.LONG);
+                        break;
+                    default:
+                        Toast.show(`Login failed: ${error?.message || 'Something went wrong'}`, Toast.LONG);
+                        break;
+                }
             }
+        } finally {
+            setLoading(false);
+        }
     };
 
 
@@ -181,17 +181,17 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
 
     useEffect(() => {
         const timer = setInterval(() => {
-        setOtpExpiry(prev => {
-            if (prev <= 1) {
-                clearInterval(timer);
-                // maybe disable OTP input or show expiry message
-            }
-            return prev - 1;
-        });
-    }, 1000);
+            setOtpExpiry(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    // maybe disable OTP input or show expiry message
+                }
+                return prev - 1;
+            });
+        }, 1000);
 
 
-    return () => clearInterval(timer); // cleanup
+        return () => clearInterval(timer); // cleanup
     }, []);
 
     const [confirm, setConfirm] = useState<any>(null);
@@ -220,20 +220,20 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
     };
 
     return (
-        <SafeAreaView style={[GlobalStyleSheet.container, {paddingTop:15, padding:0, backgroundColor:theme.dark ? COLORS.title:COLORS.white}]}>
-            <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',paddingHorizontal:15}}>
-                <View style={{flexDirection:'row',alignItems:'center',gap:5}}>
+        <SafeAreaView style={[GlobalStyleSheet.container, { paddingTop: 15, padding: 0, backgroundColor: theme.dark ? COLORS.title : COLORS.white }]}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 15 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                     <Image
-                        style={{height:24,width:28,resizeMode:'contain'}}
+                        style={{ height: 24, width: 28, resizeMode: 'contain' }}
                         source={IMAGES.headerlogo}
                     />
-                    <Text style={[FONTS.fontMedium,{fontSize:20,color:colors.title}]}>Fizz <Text style={{color:COLORS.primary}}>Fuzz</Text></Text>
+                    <Text style={[FONTS.fontMedium, { fontSize: 20, color: colors.title }]}>Fizz <Text style={{ color: COLORS.primary }}>Fuzz</Text></Text>
                 </View>
-               <TouchableOpacity
-                    style={{ 
-                        height: 38, 
-                        width: 38, 
-                        backgroundColor: colors.card, 
+                <TouchableOpacity
+                    style={{
+                        height: 38,
+                        width: 38,
+                        backgroundColor: colors.card,
                         borderRadius: 38,
                         alignItems: 'center',
                         justifyContent: 'center'
@@ -249,19 +249,19 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                 </TouchableOpacity>
             </View>
             <ScrollView
-                contentContainerStyle={{flexGrow:1,paddingBottom:100}}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
                 showsVerticalScrollIndicator={false}
             >
                 <View>
-                    <View style={{paddingVertical:5,marginHorizontal:-15,paddingTop:0}}>
+                    <View style={{ paddingVertical: 5, marginHorizontal: -15, paddingTop: 0 }}>
                         <Image
-                            style={{width:'100%',height:undefined,aspectRatio:1/.3,resizeMode:'contain'}}
+                            style={{ width: '100%', height: undefined, aspectRatio: 1 / .3, resizeMode: 'contain' }}
                             source={IMAGES.ads4}
                         />
                     </View>
-                    <View style={{paddingHorizontal:15}}>
-                        <Text style={[FONTS.fontMedium,{fontSize:18,color:colors.title,}]}>Unlock Personalized Content{"\n"}Tailored Just For You</Text>
-                        {Platform.OS === 'ios' ? 
+                    <View style={{ paddingHorizontal: 15 }}>
+                        <Text style={[FONTS.fontMedium, { fontSize: 18, color: colors.title, }]}>Unlock Personalized Content{"\n"}Tailored Just For You</Text>
+                        {Platform.OS === 'ios' ?
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -273,12 +273,12 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                             >
                                 <TouchableOpacity onPress={() => setShowPhone(true)}>
                                     <Text
-                                    style={[
-                                        FONTS.fontMedium,
-                                        { fontSize: 12, color: showPhone ? COLORS.primary : colors.text },
-                                    ]}
+                                        style={[
+                                            FONTS.fontMedium,
+                                            { fontSize: 12, color: showPhone ? COLORS.primary : colors.text },
+                                        ]}
                                     >
-                                    Use Email Id
+                                        Use Email Id
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => setShowPhone(false)}>
@@ -288,11 +288,11 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                             { fontSize: 14, color: showPhone ? colors.text : COLORS.primary },
                                         ]}
                                     >
-                                    Enter Mobile Number
+                                        Enter Mobile Number
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                        :
+                            :
                             <View
                                 style={{
                                     flexDirection: 'row',
@@ -309,17 +309,17 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                             { fontSize: 14, color: showPhone ? colors.text : COLORS.primary },
                                         ]}
                                     >
-                                    Enter Mobile Number
+                                        Enter Mobile Number
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity onPress={() => setShowPhone(false)}>
                                     <Text
-                                    style={[
-                                        FONTS.fontMedium,
-                                        { fontSize: 12, color: showPhone ? COLORS.primary : colors.text },
-                                    ]}
+                                        style={[
+                                            FONTS.fontMedium,
+                                            { fontSize: 12, color: showPhone ? COLORS.primary : colors.text },
+                                        ]}
                                     >
-                                    Use Email Id
+                                        Use Email Id
                                     </Text>
                                 </TouchableOpacity>
                             </View>
@@ -338,21 +338,21 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                             autoCapitalize="none"
                                         />
                                         <View style={{ paddingTop: 15 }}>
-                                        <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>Password</Text>
-                                        <Input
-                                            inputBorder
-                                            placeholder="Enter Password"
-                                            onChangeText={setPassword}
-                                            style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
-                                            value={password}
-                                            type='password'
-                                        />
+                                            <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>Password</Text>
+                                            <Input
+                                                inputBorder
+                                                placeholder="Enter Password"
+                                                onChangeText={setPassword}
+                                                style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
+                                                value={password}
+                                                type='password'
+                                            />
                                         </View>
                                     </View>
-                                    ) : (
-                                    <View style={{position: 'relative',}}>
-                                        <View style={{flex: 1}}>
-                                            <View style={{position:'absolute',bottom:13,zIndex:99}}>
+                                ) : (
+                                    <View style={{ position: 'relative', }}>
+                                        <View style={{ flex: 1 }}>
+                                            <View style={{ position: 'absolute', bottom: 13, zIndex: 99 }}>
                                                 <SelectCountery onSelectCountry={onSelectCountry} />
                                             </View>
                                             <Input
@@ -374,13 +374,13 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                                     keyboardType="number-pad"
                                                     onChangeText={setOtpCode}
                                                     value={otpCode}
-                                                    style={{ borderColor: COLORS.primary, paddingLeft: 10,marginBottom: 5 }}
+                                                    style={{ borderColor: COLORS.primary, paddingLeft: 10, marginBottom: 5 }}
                                                 />
-                                                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:15}}>
-                                                    <Text  
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 }}>
+                                                    <Text
                                                         style={[
                                                             FONTS.fontMedium,
-                                                            { fontSize: 14, color:colors.text },
+                                                            { fontSize: 14, color: colors.text },
                                                         ]}
                                                     >
                                                         OTP expires in: {Math.floor(otpExpiry / 60)}:{(otpExpiry % 60).toString().padStart(2, '0')}
@@ -396,12 +396,12 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                     </View>
                                 )}
                             </View>
-                        :
+                            :
                             <View>
                                 {showPhone ? (
-                                    <View style={{position: 'relative',}}>
-                                        <View style={{flex: 1}}>
-                                            <View style={{position:'absolute',bottom:13,zIndex:99}}>
+                                    <View style={{ position: 'relative', }}>
+                                        <View style={{ flex: 1 }}>
+                                            <View style={{ position: 'absolute', bottom: 13, zIndex: 99 }}>
                                                 <SelectCountery onSelectCountry={onSelectCountry} />
                                             </View>
                                             <Input
@@ -423,13 +423,13 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                                     keyboardType="number-pad"
                                                     onChangeText={setOtpCode}
                                                     value={otpCode}
-                                                    style={{ borderColor: COLORS.primary, paddingLeft: 10,marginBottom: 5 }}
+                                                    style={{ borderColor: COLORS.primary, paddingLeft: 10, marginBottom: 5 }}
                                                 />
-                                                <View style={{flexDirection:'row',alignItems:'center',justifyContent:'space-between',marginBottom:15}}>
-                                                    <Text  
+                                                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 15 }}>
+                                                    <Text
                                                         style={[
                                                             FONTS.fontMedium,
-                                                            { fontSize: 14, color:colors.text },
+                                                            { fontSize: 14, color: colors.text },
                                                         ]}
                                                     >
                                                         OTP expires in: {Math.floor(otpExpiry / 60)}:{(otpExpiry % 60).toString().padStart(2, '0')}
@@ -443,7 +443,7 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                             </>
                                         )}
                                     </View>
-                                    ) : (
+                                ) : (
                                     <View>
                                         <Input
                                             inputBorder
@@ -455,35 +455,35 @@ const SkipLoginSheet = ({moresheet2} : Props) => {
                                             autoCapitalize="none"
                                         />
                                         <View style={{ paddingTop: 15 }}>
-                                        <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>Password</Text>
-                                        <Input
-                                            inputBorder
-                                            placeholder="Enter Password"
-                                            onChangeText={setPassword}
-                                            style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
-                                            value={password}
-                                            type='password'
-                                        />
+                                            <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>Password</Text>
+                                            <Input
+                                                inputBorder
+                                                placeholder="Enter Password"
+                                                onChangeText={setPassword}
+                                                style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
+                                                value={password}
+                                                type='password'
+                                            />
                                         </View>
                                     </View>
                                 )}
                             </View>
                         }
-                        <View style={{paddingTop:10}}>
-                            <Text style={[FONTS.fontRegular,{fontSize:14,color:colors.title}]}>By continuing, you agree to FizzyFuzz's <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Terms of Use</Text>{"\n"}and <Text style={[FONTS.fontSemiBold,{color:COLORS.primary}]}>Privacy Policy</Text>.</Text>
+                        <View style={{ paddingTop: 10 }}>
+                            <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>By continuing, you agree to FizzyFuzz's <Text style={[FONTS.fontSemiBold, { color: COLORS.primary }]}>Terms of Use</Text>{"\n"}and <Text style={[FONTS.fontSemiBold, { color: COLORS.primary }]}>Privacy Policy</Text>.</Text>
                         </View>
                     </View>
                     {verificationId && (
-                        <View style={{marginTop:10,paddingHorizontal:15}}>
-                            <Button 
-                                title={loading ? 'Verifying...' : 'Verify OTP'} 
-                                onPress={onVerifyOtp} 
-                                disabled={loading} 
+                        <View style={{ marginTop: 10, paddingHorizontal: 15 }}>
+                            <Button
+                                title={loading ? 'Verifying...' : 'Verify OTP'}
+                                onPress={onVerifyOtp}
+                                disabled={loading}
                             />
                         </View>
                     )}
                     {!verificationId && (
-                        <View style={{marginTop:10,paddingHorizontal:15}}>
+                        <View style={{ marginTop: 10, paddingHorizontal: 15 }}>
                             <Button
                                 title={loading ? 'Loading...' : 'Continue'}
                                 onPress={onContinue}
