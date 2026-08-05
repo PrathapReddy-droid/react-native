@@ -47,7 +47,7 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
     try {
       setLoading(true);
 
-      const res = await loginApi({ mobile: trimmedMobile, password, role: 'USER' });
+      const res = await loginApi({ mobile: trimmedMobile, role: 'USER' });
       const body = res?.data;
 
       if (body?.error) {
@@ -132,7 +132,7 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
               />
             </View>
 
-            <View style={{ paddingTop: 15 }}>
+            {/* <View style={{ paddingTop: 15 }}>
               <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>
                 Password
               </Text>
@@ -158,7 +158,7 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
                   Forgot Password?
                 </Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
 
             <View style={{ paddingTop: 15 }}>
               <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>

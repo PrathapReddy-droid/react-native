@@ -207,7 +207,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                         <View style={[GlobalStyleSheet.row, { alignItems: 'center', justifyContent: 'space-between' }]}>
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: -5 }}>
                                 <TouchableOpacity style={{ margin: 5 }} onPress={() => navigation.openDrawer()}>
-                                    <Image style={{ height: 22, width: 22, tintColor: COLORS.card, resizeMode: 'contain' }} source={IMAGES.grid5} />
+                                    {/* <Image style={{ height: 22, width: 22, tintColor: COLORS.card, resizeMode: 'contain' }} source={IMAGES.grid5} /> */}
                                 </TouchableOpacity>
 <Image
     source={IMAGES.appname}

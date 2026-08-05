@@ -15,18 +15,12 @@ import {
   Platform,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import { useDispatch } from 'react-redux';
-import { getUserDetails, loginApi } from '../../Api/User';
-import { setselectedUser } from '../../redux/reducer/User';
-import { saveUserToStorage } from '../../redux/reducer/userStorage';
+import { loginApi } from '../../Api/User';
 import { navigate } from '../../Api/AuthEvents';
 
 const AuthModal = forwardRef((props, ref) => {
-  const dispatch = useDispatch();
-
   const [visible, setVisible] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,28 +29,50 @@ const AuthModal = forwardRef((props, ref) => {
     close: () => setVisible(false),
   }));
 
-  const closeModal = () => setVisible(false);
+  const closeModal = () => {
+    setVisible(false);
+    setError('');
+  };
 
-  const handleLogin = async () => {
+  const handleContinue = async () => {
+    if (loading) return;
     setError('');
 
-    if (!email || !password) {
-      setError('Email and password are required');
+    const trimmedMobile = mobile.trim();
+
+    if (!trimmedMobile) {
+      setError('Please enter your mobile number');
+      return;
+    }
+    if (!/^\d{10}$/.test(trimmedMobile.replace('+91', ''))) {
+      setError('Please enter a valid 10-digit mobile number');
       return;
     }
 
     try {
       setLoading(true);
-      const res = await loginApi({ email, password });
-      console.log('Login Response:', res);
 
-      const userRes = await getUserDetails();
-      dispatch(setselectedUser(userRes?.data));
-      await saveUserToStorage(userRes?.data);
+      const res = await loginApi({ mobile: trimmedMobile, role: 'USER' });
+      const body = res?.data;
 
-      closeModal();
+      if (body?.error) {
+        setError(body.message || 'Login failed');
+        return;
+      }
+
+      if (res?.otpRequired) {
+        closeModal();
+        navigate('VerifyOtp', {
+          type: 'login',
+          sessionToken: res.data.sessionToken,
+          mobile: res.data.mobile,
+        });
+        return;
+      }
+
+      setError('Something went wrong, please try again');
     } catch (err: any) {
-      setError(err?.response?.data?.message || 'Login failed');
+      setError(err?.response?.data?.message || err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -81,44 +97,38 @@ const AuthModal = forwardRef((props, ref) => {
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.title}>Login</Text>
+            <TouchableOpacity onPress={closeModal}>
+              <Feather name="x" size={22} />
+            </TouchableOpacity>
           </View>
 
-          <Text style={styles.subtitle}>Please login to continue</Text>
+          <Text style={styles.subtitle}>
+            Enter your mobile number. We'll send an OTP to confirm it's you.
+          </Text>
 
           <View style={styles.inputBox}>
-            <Feather name="mail" size={18} />
+            <Feather name="phone" size={18} />
             <TextInput
-              placeholder="Email"
+              placeholder="Enter Mobile Number"
               style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-            />
-          </View>
-
-          <View style={styles.inputBox}>
-            <Feather name="lock" size={18} />
-            <TextInput
-              placeholder="Password"
-              secureTextEntry
-              style={styles.input}
-              value={password}
-              onChangeText={setPassword}
+              value={mobile}
+              onChangeText={setMobile}
+              keyboardType="phone-pad"
+              maxLength={10}
             />
           </View>
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <TouchableOpacity
-            style={styles.loginBtn}
-            onPress={handleLogin}
+            style={[styles.loginBtn, loading && { opacity: 0.7 }]}
+            onPress={handleContinue}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.loginText}>Login</Text>
+              <Text style={styles.loginText}>Continue</Text>
             )}
           </TouchableOpacity>
 

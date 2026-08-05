@@ -55,7 +55,7 @@ const SignUp = ({  }: SignUpScreenProps) => {
     try {
       setLoading(true);
 
-      await registerApi({name:username,email:email,password:password, mobile:mobile})
+      await registerApi({name:username,email:email, mobile:mobile})
       Toast.show('Account created successfully!', Toast.LONG);
 navigation.navigate('VerifyEmail', { email });
     } catch (error: any) {
@@ -213,7 +213,7 @@ navigation.navigate('VerifyEmail', { email });
             />
 
             {/* Password */}
-            <View style={{ paddingTop: 15 }}>
+            {/* <View style={{ paddingTop: 15 }}>
               <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>
                 Password
               </Text>
@@ -225,7 +225,7 @@ navigation.navigate('VerifyEmail', { email });
                 onChangeText={setPassword}
                 style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
               />
-            </View>
+            </View> */}
 
             <View style={{ paddingTop: 10 }}>
               <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>
