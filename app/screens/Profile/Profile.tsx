@@ -122,10 +122,11 @@ const Profile = ({navigation} : ProfileScreenProps) => {
                                     source={IMAGES.grid5}
                                 />
                             </TouchableOpacity>
-                            <Image
-                                style={{width:114,height:25}}
-                                source={IMAGES.appname}
-                            />
+                        <Image
+    source={IMAGES.appname}
+    style={{ width: 32, height: 32 }}
+    resizeMode="contain"
+/>
                         </View>
                         <View style={{flexDirection:'row',alignItems:'center'}}>
                             <TouchableOpacity

@@ -4,7 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const loginApi = async (data) => {
   try {
+    console.log(data, "==========================>>>>")
     const response = await apiClient.post('/api/user/login', data);
+    console.log(response, "==========================>>>>")
 
 
     return response;

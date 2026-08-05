@@ -209,8 +209,11 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                 <TouchableOpacity style={{ margin: 5 }} onPress={() => navigation.openDrawer()}>
                                     <Image style={{ height: 22, width: 22, tintColor: COLORS.card, resizeMode: 'contain' }} source={IMAGES.grid5} />
                                 </TouchableOpacity>
-                                <Image source={IMAGES.appname} style={{ width: 170, height: 50, backgroundColor: 'transparent' }} />
-                            </View>
+<Image
+    source={IMAGES.appname}
+    style={{ width: 32, height: 32 }}
+    resizeMode="contain"
+/>                            </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TouchableOpacity onPress={() => navigation.navigate('Search')} style={{ height: 35, width: 35, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image style={{ height: 22, width: 22, tintColor: COLORS.card, resizeMode: 'contain' }} source={IMAGES.search} />
