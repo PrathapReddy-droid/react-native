@@ -5,13 +5,11 @@ import {
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
-  Platform,
 } from 'react-native';
 import { useNavigation, useTheme } from '@react-navigation/native';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { StackScreenProps } from '@react-navigation/stack';
-import auth from '@react-native-firebase/auth';
 import { COLORS, FONTS } from '../../constants/theme';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { RootStackParamList } from '../../navigation/RootStackParamList';
@@ -22,44 +20,70 @@ import { registerApi } from '../../Api/User';
 
 type SignUpScreenProps = StackScreenProps<RootStackParamList, 'SignUp'>;
 
-const SignUp = ({  }: SignUpScreenProps) => {
+const SignUp = ({ }: SignUpScreenProps) => {
   const theme = useTheme();
   const navigation = useNavigation();
   const { colors }: { colors: any } = theme;
 
-  const [showPhone, setShowPhone] = useState(false); // UI only
-
   // Inputs
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [mobile ,setMobile] = useState()
+  const [mobile, setMobile] = useState('');
 
   const [loading, setLoading] = useState(false);
 
-  // Email signup only
   const onContinue = async () => {
+    if (loading) return;
+
     if (!username.trim()) {
       Toast.show('Please enter your name', Toast.LONG);
       return;
     }
-    if(!mobile.trim()){
-      Toast.show('Please enter your mobile', Toast.LONG)
-    }
-    if (!email.trim() || !password.trim()) {
-      Toast.show('Please enter email and password', Toast.LONG);
+
+    const trimmedMobile = mobile.trim();
+    if (!trimmedMobile) {
+      Toast.show('Please enter your mobile', Toast.LONG);
       return;
     }
-    
+    if (!/^\d{10}$/.test(trimmedMobile.replace('+91', ''))) {
+      Toast.show('Please enter a valid 10-digit mobile number', Toast.LONG);
+      return;
+    }
+
+    if (!email.trim()) {
+      Toast.show('Please enter email', Toast.LONG);
+      return;
+    }
 
     try {
       setLoading(true);
 
-      await registerApi({name:username,email:email, mobile:mobile})
-      Toast.show('Account created successfully!', Toast.LONG);
-navigation.navigate('VerifyEmail', { email });
+      const res = await registerApi({
+        name: username,
+        email: email,
+        mobile: trimmedMobile,
+      });
+      const body = res?.data;
+
+      if (body?.error) {
+        Toast.show(body.message || 'Registration failed', Toast.LONG);
+        return;
+      }
+
+      if (res?.success == true) {
+        Toast.show(body?.message || 'OTP sent', Toast.LONG);
+        navigation.navigate('VerifyOtp', {
+          type: 'register',
+          sessionToken: res.data.sessionToken,
+          mobile: res.data.mobile,
+        });
+        return;
+      }
+
+      Toast.show('Something went wrong, please try again', Toast.LONG);
     } catch (error: any) {
-      Toast.show(error.message, Toast.LONG);
+      const serverMsg = error?.response?.data?.message;
+      Toast.show(serverMsg || error.message || 'Registration failed', Toast.LONG);
     } finally {
       setLoading(false);
     }
@@ -87,7 +111,7 @@ navigation.navigate('VerifyEmail', { email });
             onPress={() =>
               navigation.navigate('DrawerNavigation', {
                 screen: 'BottomNavigation',
-                params: { screen: 'VerifyEmail' },
+                params: { screen: 'Home' },
               })
             }
           >
@@ -121,7 +145,7 @@ navigation.navigate('VerifyEmail', { email });
               Fresh Arrival, Ready To Explore?
             </Text>
             <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.text }]}>
-              Register Using Your Email To Begin
+              Register using your details. We'll send an OTP to your mobile to confirm it's you.
             </Text>
 
             {/* Name */}
@@ -139,95 +163,39 @@ navigation.navigate('VerifyEmail', { email });
               />
             </View>
 
-            {/* UI Tabs (unchanged) */}
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingTop: 15,
-                paddingBottom: 5,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowPhone(false)}>
-                <Text
-                  style={[
-                    FONTS.fontMedium,
-                    { fontSize: 12, color: COLORS.primary },
-                  ]}
-                >
-                  Use Email Id
-                </Text>
-              </TouchableOpacity>
-              {/* <TouchableOpacity>
-                <Text
-                  style={[
-                    FONTS.fontMedium,
-                    { fontSize: 14, color: colors.text },
-                  ]}
-                >
-                  Enter Mobile Number
-                </Text>
-              </TouchableOpacity> */}
-            </View>
-
-            {/* Email */}
-            <Input
-              inputBorder
-              placeholder="Enter Email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={email}
-              onChangeText={setEmail}
-              style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
-            />
-
-                  <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                paddingTop: 15,
-                paddingBottom: 5,
-              }}
-            >
-              <TouchableOpacity onPress={() => setShowPhone(false)}>
-                <Text
-                  style={[
-                    FONTS.fontMedium,
-                    { fontSize: 12, color: COLORS.primary },
-                  ]}
-                >
-                  Mobile Number
-                </Text>
-              </TouchableOpacity>
-       
-            </View>
-            {/* Email */}
-            <Input
-              inputBorder
-              placeholder="Enter Mobile"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              value={mobile}
-              onChangeText={setMobile}
-              style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
-            />
-
-            {/* Password */}
-            {/* <View style={{ paddingTop: 15 }}>
+            {/* Mobile */}
+            <View style={{ paddingTop: 15 }}>
               <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>
-                Password
+                Mobile Number
               </Text>
               <Input
                 inputBorder
-                placeholder="Enter Password"
-                type="password"
-                value={password}
-                onChangeText={setPassword}
+                placeholder="Enter Mobile Number"
+                keyboardType="phone-pad"
+                maxLength={10}
+                value={mobile}
+                onChangeText={setMobile}
                 style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
               />
-            </View> */}
+            </View>
 
-            <View style={{ paddingTop: 10 }}>
+            {/* Email */}
+            <View style={{ paddingTop: 15 }}>
+              <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.text }]}>
+                Email
+              </Text>
+              <Input
+                inputBorder
+                placeholder="Enter Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                value={email}
+                onChangeText={setEmail}
+                style={{ borderColor: COLORS.primary, paddingLeft: 10 }}
+              />
+            </View>
+
+            <View style={{ paddingTop: 15 }}>
               <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.title }]}>
                 By continuing, you agree to FizzyFuzz's{' '}
                 <Text style={[FONTS.fontSemiBold, { color: COLORS.primary }]}>
@@ -271,7 +239,7 @@ navigation.navigate('VerifyEmail', { email });
           </View>
 
           <Button
-            title={loading ? 'Loading...' : 'Continue'}
+            title={loading ? 'Sending OTP...' : 'Continue'}
             onPress={onContinue}
             disabled={loading}
           />

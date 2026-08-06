@@ -17,12 +17,15 @@ import {
 import Feather from 'react-native-vector-icons/Feather';
 import { loginApi } from '../../Api/User';
 import { navigate } from '../../Api/AuthEvents';
+import { useNavigation } from '@react-navigation/native';
 
 const AuthModal = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigation = useNavigation();
+
 
   useImperativeHandle(ref, () => ({
     open: () => setVisible(true),

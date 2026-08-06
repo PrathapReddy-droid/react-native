@@ -70,12 +70,13 @@ const StackNavigator = () => {
   const theme = useTheme();
   const { colors }: { colors: any } = theme;
   const navigation = useNavigation();
-  const com.app.user.fizzyfuzzRef = useRef<{ open: () => void; close: () => void }>(null);
+  const authModalRef = useRef<{ open: () => void; close: () => void }>(null);
 
   useEffect(() => {
     setHandler(
       () => authModalRef.current?.open(),
-      (screen: string) => navigation.navigate(screen as never)
+      (screen: string, params?: object) =>
+        navigation.navigate(screen as never, params as never)
     );
     return () => {
       setHandler(() => { }, () => { });

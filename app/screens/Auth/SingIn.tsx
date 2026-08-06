@@ -39,10 +39,10 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
       Toast.show('Please enter a valid 10-digit mobile number', Toast.LONG);
       return;
     }
-    if (!password.trim()) {
-      Toast.show('Please enter your password', Toast.LONG);
-      return;
-    }
+    // if (!password.trim()) {
+    //   Toast.show('Please enter your password', Toast.LONG);
+    //   return;
+    // }
 
     try {
       setLoading(true);

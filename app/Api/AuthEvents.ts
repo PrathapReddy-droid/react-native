@@ -20,8 +20,8 @@ export const openAuthModal = () => {
   }
 };
 
-export const navigate = (screen: string) => {
+export const navigate = (screen: string, params?: object) => {
   if (global._authHandlers?.navigate) {
-    global._authHandlers.navigate(screen);
+    global._authHandlers.navigate(screen, params);
   }
 };

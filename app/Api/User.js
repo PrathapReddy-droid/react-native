@@ -27,6 +27,7 @@ export const registerApi = async (data) => {
   console.log(data, "==========================>>>>")
   try {
     const response = await apiClient.post('/api/user/register', data);
+    console.log(response, "==========================>>>>")
     return response;
   } catch (error) {
     console.log('Register API Error:', error.response?.data || error.message);
@@ -142,6 +143,18 @@ export const verifyLoginOtpApi = async (data) => {
     return response;
   } catch (error) {
     console.log('verifyLoginOtpApi Error:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const verifyRegOtpApi = async (data) => {
+  console.log(data)
+  // data = { otp, sessionToken }
+  try {
+    const response = await apiClient.post('/api/user/verifyRegisterOtp', data);
+    return response;
+  } catch (error) {
+    console.log('verifyRegOtpApi Error:', error.response?.data || error.message);
     throw error;
   }
 };

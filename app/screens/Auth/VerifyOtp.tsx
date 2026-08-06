@@ -18,6 +18,7 @@ import {
     verifyForgotPasswordOtpApi,
     forgotPasswordApi,
     verifyLoginOtpApi,
+    verifyRegOtpApi,
     getUserDetails,
 } from '../../Api/User';
 import { setselectedUser } from '../../redux/reducer/User';
@@ -30,6 +31,7 @@ const VerifyOtp = ({ navigation, route }) => {
     const { colors } = theme;
     const dispatch = useDispatch();
     const params = route.params || {};
+    console.log('VerifyOtp params:', params); // Debug
     const { type, email, sessionToken, mobile } = params;
 
     const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(''));
@@ -56,6 +58,15 @@ const VerifyOtp = ({ navigation, route }) => {
         }
     };
 
+    const completeAuthSession = async (accesstoken, refreshToken) => {
+        await AsyncStorage.setItem('AccessToken', accesstoken);
+        await AsyncStorage.setItem('RefreshToken', refreshToken);
+
+        const details = await getUserDetails();
+        dispatch(setselectedUser(details.data));
+        await saveUserToStorage(details.data);
+    };
+
     const handleVerify = async () => {
         if (loading) return;
         if (otp.length !== OTP_LENGTH) {
@@ -76,14 +87,26 @@ const VerifyOtp = ({ navigation, route }) => {
                     return;
                 }
 
-                await AsyncStorage.setItem('AccessToken', body.accesstoken);
-                await AsyncStorage.setItem('RefreshToken', body.refreshToken);
-
-                const details = await getUserDetails();
-                dispatch(setselectedUser(details.data));
-                await saveUserToStorage(details.data);
+                await completeAuthSession(body.accesstoken, body.refreshToken);
 
                 Toast.show('Login Successful', Toast.LONG);
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
+                });
+            } else if (type === 'register') {
+                // ---- Registration OTP flow ----
+                const res = await verifyRegOtpApi({ otp, sessionToken });
+                const body = res?.data;
+
+                if (body?.error) {
+                    Toast.show(body.message || 'Invalid OTP', Toast.LONG);
+                    return;
+                }
+
+                await completeAuthSession(body.accesstoken, body.refreshToken);
+
+                Toast.show('Account verified successfully', Toast.LONG);
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'DrawerNavigation', params: { screen: 'Home' } }],
@@ -112,8 +135,13 @@ const VerifyOtp = ({ navigation, route }) => {
         if (resending) return;
         try {
             setResending(true);
-            if (type === 'login') {
-                Toast.show('Please go back and log in again to resend OTP', Toast.LONG);
+            if (type === 'login' || type === 'register') {
+                Toast.show(
+                    type === 'login'
+                        ? 'Please go back and log in again to resend OTP'
+                        : 'Please go back and sign up again to resend OTP',
+                    Toast.LONG,
+                );
                 return;
             }
             await forgotPasswordApi({ email });
@@ -149,7 +177,9 @@ const VerifyOtp = ({ navigation, route }) => {
                 <View style={[GlobalStyleSheet.container, { flexGrow: 1, marginTop: 20 }]}>
                     <Text style={[FONTS.fontMedium, { fontSize: 16, color: colors.title }]}>
                         Enter the 6-digit code sent to{' '}
-                        {type === 'login' ? (mobile || 'your registered mobile') : email}
+                        {(type === 'login' || type === 'register')
+                            ? (mobile || 'your registered mobile')
+                            : email}
                     </Text>
 
                     <View
