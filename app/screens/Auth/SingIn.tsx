@@ -50,8 +50,8 @@ const SingIn = ({ navigation }: SingInScreenProps) => {
       const res = await loginApi({ mobile: trimmedMobile, role: 'USER' });
       const body = res?.data;
 
-      if (body?.error) {
-        Toast.show(body.message || 'Login failed', Toast.LONG);
+      if (res?.error === true) {
+        Toast.show(res.message || 'Login failed', Toast.LONG);
         return;
       }
 

@@ -64,9 +64,10 @@ const SignUp = ({ }: SignUpScreenProps) => {
         mobile: trimmedMobile,
       });
       const body = res?.data;
+      console.log(res)
 
-      if (body?.error) {
-        Toast.show(body.message || 'Registration failed', Toast.LONG);
+      if (res?.error === true) {
+        Toast.show(res.message || 'Registration failed', Toast.LONG);
         return;
       }
 

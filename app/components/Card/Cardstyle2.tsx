@@ -84,13 +84,13 @@ const Cardstyle2 = ({
               <ProductRating productId={id} />
 
                 </View>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 }}>
+                {/* <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 10 }}>
                     <Image
                         style={{ height: 14, width: 14 }}
                         source={IMAGES.leftarrow}
-                    />
-                    <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.text }]}>14 Days return available</Text>
-                </View>
+                    /> */}
+                    {/* <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.text }]}>14 Days return available</Text> */}
+                {/* </View> */}
             </View>
             {closebtn ?
                 <TouchableOpacity
