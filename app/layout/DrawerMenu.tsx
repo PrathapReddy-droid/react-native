@@ -23,11 +23,11 @@ const MenuItems = [
         navigate: "Products",
     },
 
-    {
-        icon: IMAGES.star,
-        name: "Review",
-        navigate: "Writereview",
-    },
+    // {
+    //     icon: IMAGES.star,
+    //     name: "Review",
+    //     navigate: "Writereview",
+    // },
     {
         icon: IMAGES.heart2,
         name: "Wishlist",

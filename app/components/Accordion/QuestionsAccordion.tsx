@@ -1,10 +1,12 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Linking } from 'react-native'
 import React, { useState } from 'react'
 import { useTheme } from '@react-navigation/native';
 import { COLORS, FONTS } from '../../constants/theme';
 import FeatherIcon from 'react-native-vector-icons/Feather';
-//import { Feather } from '@expo/vector-icons';
 import Accordion from 'react-native-collapsible/Accordion';
+
+const APP_NAME = "YourApp"; // TODO: replace with your actual app name
+const SUPPORT_EMAIL = "support@yourapp.com"; // TODO: replace with your real support email
 
 const QuestionsAccordion = () => {
 
@@ -20,36 +22,32 @@ const QuestionsAccordion = () => {
 
     const SECTIONS = [
         {
-            title: 'What is included with my purchase?',
-            content: 'Package have the JavaScript JS, JavaScript JSON, XML, .apk, .java, JavaScript JSON, .java, .plist, Well Define Documentation, Fonts and Icons, Responsive Designs, Image Assets, Customization Options, and many more.',
+            title: 'How do I place an order?',
+            content: `Browse products, add items to your cart or wishlist, then proceed to checkout. Select your delivery address and preferred payment method, review your order summary, and confirm to place it.`,
         },
         {
-            title: 'What features does FizzyFuzz offer?',
-            content: 'FizzyFuzz offers a wide range of features including responsive design, customizable layouts, product catalog pages, shopping cart functionality, checkout pages, user account management, and more.',
-
+            title: 'What payment methods do you accept?',
+            content: `We accept Visa, Mastercard, RuPay, UPI, Net Banking, and select digital wallets. All payments are processed securely and your card details are never stored on our servers.`,
         },
         {
-            title: "Can I customize the template's design?",
-            content: 'Absolutely! FizzyFuzz is built using JSX, which makes it highly customizable. You can easily adjust colors, fonts, layout structures, and more to match your brand identity.',
-
+            title: 'How can I track my order?',
+            content: `Once your order ships, go to "My Orders" in your account to see real-time status updates. You'll also receive notifications as your order moves from processing to delivery.`,
         },
         {
-            title: 'Are there pre-designed page templates included?',
-            content: 'Yes, FizzyFuzz typically includes pre-designed templates for essential pages like the homepage, product listings, product details, shopping cart, checkout, and user account pages.',
+            title: 'What is your return and refund policy?',
+            content: `Items can be returned within 7 days of delivery if unused and in original packaging. Once we receive and inspect the return, refunds are processed to your original payment method within 5-7 business days.`,
         },
         {
-            title: 'Does FizzyFuzz provide customer support?',
-            content: 'FizzyFuzz offers customer support options for their clients. Check the template documentation or you can directly contact to our support team from here - Click Here',
-
+            title: 'Can I cancel or change my order after placing it?',
+            content: `You can cancel or edit an order from "My Orders" as long as it hasn't been shipped yet. Once it's out for delivery, cancellation may no longer be possible.`,
         },
         {
-            title: "Is coding knowledge required to use FizzyFuzz?",
-            content: "Basic knowledge of JavaScript JS, XML, and JSX can be helpful for customizing FizzyFuzz to your needs. However, it's designed to be user- friendly and doesn't necessarily require extensive coding skills.",
-
+            title: 'How do I use the wishlist?',
+            content: `Tap the heart icon on any product to save it to your wishlist. You can revisit your wishlist anytime from your profile to move items into your cart when you're ready to buy.`,
         },
         {
-            title: 'How can I get started with FizzyFuzz?',
-            content: "To get started, purchase and download the FizzyFuzz template. Then, follow the included documentation to set up and customize your e-commerce website based on your specific requirements.",
+            title: 'How can I contact customer support?',
+            content: `Our support team is available 24/7. Reach us anytime at ${SUPPORT_EMAIL}, or use the in-app chat from your profile menu for the fastest response.`,
         },
     ];
 
@@ -63,7 +61,6 @@ const QuestionsAccordion = () => {
                 paddingHorizontal: 15
             }}>
                 <Text style={[FONTS.fontMedium, { fontSize: 14, color: colors.title, flex: 1 }]}>{item.title}</Text>
-                {/* <Feather name={isActive ? "chevron-up" : "chevron-down"} size={18} color={colors.title} /> */}
                 <FeatherIcon size={24} color={colors.title} name={isActive ? "chevron-up" : "chevron-down"} />
             </View>
         )
@@ -77,8 +74,13 @@ const QuestionsAccordion = () => {
                 paddingVertical: 10,
                 paddingHorizontal: 15
             }}>
-
                 <Text style={[FONTS.fontSm, { color: colors.text, lineHeight: 20 }]}>{item.content}</Text>
+
+                {item.title === 'How can I contact customer support?' && (
+                    <TouchableOpacity onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}`)} style={{ marginTop: 8 }}>
+                        <Text style={[FONTS.fontMedium, { fontSize: 13, color: COLORS.primary }]}>Email Support →</Text>
+                    </TouchableOpacity>
+                )}
             </View>
         )
     }
@@ -89,10 +91,7 @@ const QuestionsAccordion = () => {
                 sections={SECTIONS}
                 duration={300}
                 sectionContainerStyle={{
-                    // borderWidth: 1,
-                    // borderColor: theme.dark ? COLORS.white : colors.borderColor,
                     marginBottom: 10,
-                    //paddingHorizontal: 20,
                     borderRadius: 10,
                     backgroundColor:theme.dark ? 'rgba(255,255,255,.1)':colors.card
                 }}

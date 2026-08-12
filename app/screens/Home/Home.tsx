@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator } from 'react-native'
+import { View, Text, ScrollView, Image, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Modal } from 'react-native'
 import { useTheme, useRoute, useFocusEffect } from '@react-navigation/native';
 import { GlobalStyleSheet } from '../../constants/StyleSheet';
 import { IMAGES } from '../../constants/Images';
@@ -18,9 +18,27 @@ import { productList, VideoApi } from '../../Api/Product';
 import { WebView } from 'react-native-webview';
 
 const offerData = [
-    { image: IMAGES.check3, title: "Secure Payment", text: "We ensure secure payment" },
-    { image: IMAGES.technicalsupport, title: "Customer Support", text: "Call or email us 24/7" },
-    { image: IMAGES.wallet2, title: "Flexible Payment", text: "Pay with Multiple Credit Card" },
+    {
+        image: IMAGES.check3,
+        title: "Secure Payment",
+        text: "We ensure secure payment",
+        popupTitle: "100% Secure Payments",
+        popupDesc: "All transactions are encrypted with 256-bit SSL security. We support Visa, Mastercard, RuPay, UPI, and Net Banking. Your card details are never stored on our servers.",
+    },
+    {
+        image: IMAGES.technicalsupport,
+        title: "Customer Support",
+        text: "Call or email us 24/7",
+        popupTitle: "We're Here to Help",
+        popupDesc: "Reach our support team anytime at support@yourapp.com or call +1 (800) 555-0199. Average response time is under 2 hours, 7 days a week.",
+    },
+    {
+        image: IMAGES.wallet2,
+        title: "Flexible Payment",
+        text: "Pay with Multiple Credit Card",
+        popupTitle: "Flexible Payment Options",
+        popupDesc: "Split your purchase into easy EMIs, pay via multiple cards, or use wallet balance. No hidden charges — cancel or modify anytime before shipping.",
+    },
 ]
 
 type HomeScreenProps = StackScreenProps<RootStackParamList, 'Home'>;
@@ -42,6 +60,11 @@ const Home = ({ navigation }: HomeScreenProps) => {
     const [cardData, setcardData] = useState([]);
     const [videoData, setVideoData] = useState<any[]>([]);
     const [abs2Data, setabs2Data] = useState([]);
+
+    // ── Offer popup modal ──────────────────────────────
+    const [offerModalVisible, setOfferModalVisible] = useState(false);
+    const [activeOffer, setActiveOffer] = useState<any>(null);
+    // ──────────────────────────────────────────────────
 
     // ── Section 1: Brand filter (first half) ──────────
     const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null);
@@ -209,11 +232,6 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                 <TouchableOpacity style={{ margin: 5 }} onPress={() => navigation.openDrawer()}>
                                     <Image style={{ height: 22, width: 22, tintColor: COLORS.card, resizeMode: 'contain' }} source={IMAGES.grid5} />
                                 </TouchableOpacity>
-                                {/* <Image
-                                    source={IMAGES.appname}
-                                    style={{ width: 32, height: 32 }}
-                                    resizeMode="contain"
-                                />                           */}
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <TouchableOpacity onPress={() => navigation.navigate('Search')} style={{ height: 35, width: 35, alignItems: 'center', justifyContent: 'center' }}>
@@ -337,7 +355,11 @@ const Home = ({ navigation }: HomeScreenProps) => {
                                 <TouchableOpacity
                                     key={index}
                                     style={[{ padding: 10, backgroundColor: theme.dark ? 'rgba(255,255,255,.1)' : colors.card, borderRadius: 4 }, Select === data && { backgroundColor: COLORS.primary }]}
-                                    onPress={() => { setSelect(data); navigation.navigate('Products'); }}
+                                    onPress={() => {
+                                        setSelect(data);
+                                        setActiveOffer(data);
+                                        setOfferModalVisible(true);
+                                    }}
                                 >
                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                                         <Image style={{ height: 45, width: 45, tintColor: Select === data ? COLORS.white : COLORS.primary }} source={data.image} />
@@ -513,6 +535,44 @@ const Home = ({ navigation }: HomeScreenProps) => {
                 </View>
 
             </ScrollView>
+
+            {/* ── Offer Info Modal ── */}
+            <Modal
+                visible={offerModalVisible}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setOfferModalVisible(false)}
+            >
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
+                    onPress={() => setOfferModalVisible(false)}
+                >
+                    <TouchableOpacity activeOpacity={1} style={[styles.modalCard, { backgroundColor: colors.card }]}>
+                        <View style={{ alignItems: 'center', marginBottom: 15 }}>
+                            <View style={styles.modalIconWrap}>
+                                <Image
+                                    style={{ height: 40, width: 40, tintColor: COLORS.primary, resizeMode: 'contain' }}
+                                    source={activeOffer?.image}
+                                />
+                            </View>
+                        </View>
+                        <Text style={[FONTS.fontMedium, { fontSize: 18, color: colors.title, textAlign: 'center', marginBottom: 10 }]}>
+                            {activeOffer?.popupTitle}
+                        </Text>
+                        <Text style={[FONTS.fontRegular, { fontSize: 14, color: colors.text, textAlign: 'center', lineHeight: 20, opacity: .8 }]}>
+                            {activeOffer?.popupDesc}
+                        </Text>
+                        <TouchableOpacity
+                            style={styles.modalCloseBtn}
+                            onPress={() => setOfferModalVisible(false)}
+                        >
+                            <Text style={[FONTS.fontMedium, { fontSize: 15, color: COLORS.white }]}>Got it</Text>
+                        </TouchableOpacity>
+                    </TouchableOpacity>
+                </TouchableOpacity>
+            </Modal>
+
             <BottomSheet2 ref={moresheet2} />
         </View>
     );
@@ -531,5 +591,32 @@ const styles = StyleSheet.create({
     webview: {
         flex: 1,
         borderRadius: 10,
+    },
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 30,
+    },
+    modalCard: {
+        width: '100%',
+        borderRadius: 16,
+        padding: 20,
+    },
+    modalIconWrap: {
+        height: 70,
+        width: 70,
+        borderRadius: 35,
+        backgroundColor: 'rgba(255,107,107,0.12)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    modalCloseBtn: {
+        marginTop: 18,
+        backgroundColor: COLORS.primary,
+        borderRadius: 8,
+        paddingVertical: 12,
+        alignItems: 'center',
     },
 });

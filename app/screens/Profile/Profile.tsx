@@ -63,14 +63,14 @@ const ListwithiconData = [
     {
         title: 'My Activity',
         data: [
-            {
-                icon: IMAGES.star,
-                title: "Reviews",
-                navigate: 'Writereview'
-            },
+            // {
+            //     icon: IMAGES.star,
+            //     title: "Reviews",
+            //     navigate: 'Writereview'
+            // },
             {
                 icon: IMAGES.chat,
-                title: "Questions & Answers",
+                title: "FAQS",
                 navigate: 'Questions'
             },
         ],
