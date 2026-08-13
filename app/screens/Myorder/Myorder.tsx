@@ -1,299 +1,1340 @@
-import { useTheme } from '@react-navigation/native';
-import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, Alert, ActivityIndicator } from 'react-native';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  Alert,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
+
+import {
+  useTheme,
+} from '@react-navigation/native';
+
 import Header from '../../layout/Header';
-import { COLORS, FONTS } from '../../constants/theme';
-import { GlobalStyleSheet } from '../../constants/StyleSheet';
-import { IMAGES } from '../../constants/Images';
+
+import {
+  COLORS,
+  FONTS,
+} from '../../constants/theme';
+
+import {
+  IMAGES,
+} from '../../constants/Images';
+
 import FeatherIcon from 'react-native-vector-icons/Feather';
+
 import Cardstyle2 from '../../components/Card/Cardstyle2';
-import { StackScreenProps } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/RootStackParamList';
-import { cancelOrder, getOrder, returnOrder } from '../../Api/Product';
 
-type MyorderScreenProps = StackScreenProps<RootStackParamList, 'Myorder'>;
+import {
+  StackScreenProps,
+} from '@react-navigation/stack';
 
-const Myorder = ({ navigation }: MyorderScreenProps) => {
+import {
+  RootStackParamList,
+} from '../../navigation/RootStackParamList';
+
+import {
+  cancelOrder,
+  getOrder,
+  returnOrder,
+} from '../../Api/Product';
+
+
+type MyorderScreenProps =
+  StackScreenProps<
+    RootStackParamList,
+    'Myorder'
+  >;
+
+
+const Myorder = ({
+  navigation,
+}: MyorderScreenProps) => {
+
   const theme = useTheme();
-  const { colors }: { colors: any } = theme;
 
-  const [allOrders, setAllOrders]       = useState<any[]>([]); // source of truth
-  const [orderData, setOrderData]       = useState<any[]>([]); // displayed list
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [loading, setLoading]           = useState(true);
+  const {
+    colors,
+  }: {
+    colors: any;
+  } = theme;
+
+
+  // =========================================================
+  // STATE
+  // =========================================================
+
+  const [
+    allOrders,
+    setAllOrders,
+  ] = useState<any[]>([]);
+
+  const [
+    orderData,
+    setOrderData,
+  ] = useState<any[]>([]);
+
+  const [
+    activeFilter,
+    setActiveFilter,
+  ] = useState('all');
+
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
+
+  const [
+    refreshing,
+    setRefreshing,
+  ] = useState(false);
+
+
+  // =========================================================
+  // FETCH ORDERS
+  // =========================================================
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
+
   const fetchOrders = async () => {
+
     try {
+
       const res = await getOrder();
-      const mappedData = res.data.flatMap((order: any) =>
-        order.products.map((product: any) => ({
-          title:     product.productTitle,
-          price:     `₹${product.price}`,
-          order_id:  order._id,
-          orderId:   order.orderId,
-          order_status: order.order_status,
-          user_id:   order.userId?._id || order.userId,
-          sub_id:    product?.sub_id || '',
-          delevery:  order.payment_status === 'CASH ON DELIVERY' ? 'Cash on Delivery' : 'Paid',
-          image:     product.image,
-          offer:     '',
-          brand:     '',
-          btntitle:  'Track Order',
 
-          // ── raw status from backend e.g. "confirm", "Delivered", "completed" ──
-          rawStatus: order.order_status,
+      const mappedData =
+        res.data.flatMap(
+          (order: any) => {
 
-          // ── filter bucket ──
-          status:
-            (order.order_status || '').toLowerCase() === 'delivered' ||
-            (order.order_status || '').toLowerCase() === 'completed'
-              ? 'completed'
-              : 'ongoing',
+            const rawStatus =
+              (
+                order.order_status ||
+                ''
+              ).toLowerCase();
 
-          trackorder: (order.order_status || '').toLowerCase() !== 'delivered' &&
-                      (order.order_status || '').toLowerCase() !== 'completed',
-          completed:  (order.order_status || '').toLowerCase() === 'completed',
-          EditReview: false,
-        }))
+            const isDelivered =
+              rawStatus === 'delivered';
+
+            const isCompleted =
+              rawStatus === 'completed';
+
+            const isReturned =
+              rawStatus === 'returned';
+
+
+            return order.products.map(
+              (product: any) => ({
+
+                // =================================================
+                // PRODUCT
+                // =================================================
+
+                title:
+                  product.productTitle ||
+                  'Product',
+
+                price:
+                  `₹${product.price || 0}`,
+
+                image:
+                  product.image || '',
+
+                brand:
+                  product.brand ||
+                  product.brandName ||
+                  '',
+
+                discount:
+                  product.discount ||
+                  '',
+
+                offer:
+                  product.offer ||
+                  '',
+
+
+                // =================================================
+                // IDS
+                // =================================================
+
+                order_id:
+                  order._id,
+
+                orderId:
+                  order.orderId,
+
+                user_id:
+                  order.userId?._id ||
+                  order.userId,
+
+                sub_id:
+                  product?.sub_id ||
+                  '',
+
+                product_id:
+                  product?._id ||
+                  product?.productId ||
+                  '',
+
+
+                // =================================================
+                // QUANTITY
+                // =================================================
+
+                quantity:
+                  String(
+                    product.quantity ||
+                    1
+                  ),
+
+
+                // =================================================
+                // DELIVERY
+                // =================================================
+
+                delevery:
+                  order.payment_status ===
+                    'CASH ON DELIVERY'
+                    ? 'Cash on Delivery'
+                    : 'Paid',
+
+
+                // =================================================
+                // STATUS
+                // =================================================
+
+                rawStatus,
+
+                isDelivered,
+
+                isReturned,
+
+                status:
+                  isDelivered ||
+                    isCompleted ||
+                    isReturned
+                    ? 'completed'
+                    : 'ongoing',
+
+
+                trackorder:
+                  !isDelivered &&
+                  !isCompleted &&
+                  !isReturned,
+
+
+                completed:
+                  isCompleted ||
+                  isReturned,
+
+
+                EditReview:
+                  false,
+
+              })
+            );
+          }
+        );
+
+
+      console.log(
+        mappedData,
+        '================ ORDER DATA'
       );
-      console.log(mappedData,"==================================order")
+
 
       setAllOrders(mappedData);
+
       setOrderData(mappedData);
+
     } catch (error) {
-      console.log('Order Fetch Error', error);
+
+      console.log(
+        'Order Fetch Error',
+        error
+      );
+
+      Alert.alert(
+        'Error',
+        'Unable to load your orders.'
+      );
+
     } finally {
+
       setLoading(false);
     }
   };
 
-  /* ── Filter (always from source of truth) ── */
-  const filterData = (val: string) => {
-    setActiveFilter(val);
-    if (val === 'all') {
-      setOrderData(allOrders);
-    } else {
-      setOrderData(allOrders.filter((e) => e.status === val));
-    }
+
+  // =========================================================
+  // REFRESH
+  // =========================================================
+
+  const onRefresh = async () => {
+
+    setRefreshing(true);
+
+    await fetchOrders();
+
+    setRefreshing(false);
   };
 
-  /* ── Cancel Order ── */
-  const removeItem = async (indexToRemove: number) => {
-    const item = orderData[indexToRemove];
-    const payload = {
-      order_id: item.order_id,
-      sub_id:   item.sub_id,
-      user_id:  item.user_id,
-    };
 
-    try {
-      const res = await cancelOrder(payload);
-      if (res?.data?.success) {
-        // Update both lists
-        const updater = (prev: any[]) =>
-          prev.map((o) =>
-            o.order_id === item.order_id ? { ...o, rawStatus: 'cancelled', status: 'ongoing', trackorder: false } : o
-          );
-        setAllOrders(updater);
-        setOrderData(updater);
-        Alert.alert('Success', 'Order cancelled successfully');
-      } else {
-        Alert.alert('Error', res?.data?.message || 'Something went wrong');
-      }
-    } catch (error: any) {
-      Alert.alert('Error', error?.response?.data?.message || 'Request failed');
+  // =========================================================
+  // FILTER
+  // =========================================================
+
+  const filterData = (
+    value: string
+  ) => {
+
+    setActiveFilter(value);
+
+    if (value === 'all') {
+
+      setOrderData(
+        allOrders
+      );
+
+      return;
     }
+
+    setOrderData(
+      allOrders.filter(
+        (item) =>
+          item.status === value
+      )
+    );
   };
 
-  /* ── Return Order ── */
-  const handleReturn = (index: number) => {
-    const item = orderData[index];
+
+  // =========================================================
+  // COUNTS
+  // =========================================================
+
+  const allCount =
+    allOrders.length;
+
+  const ongoingCount =
+    allOrders.filter(
+      item =>
+        item.status === 'ongoing'
+    ).length;
+
+  const completedCount =
+    allOrders.filter(
+      item =>
+        item.status === 'completed'
+    ).length;
+
+
+  // =========================================================
+  // CANCEL ORDER
+  // =========================================================
+
+  const removeItem = async (
+    indexToRemove: number
+  ) => {
+
+    const item =
+      orderData[indexToRemove];
+
+
+    if (!item) {
+      return;
+    }
+
+
     Alert.alert(
-      'Return Order',
-      'Are you sure you want to return this order?',
+      'Cancel Order',
+      'Are you sure you want to cancel this order?',
+
       [
-        { text: 'No', style: 'cancel' },
         {
-          text: 'Yes, Return',
+          text: 'No',
+          style: 'cancel',
+        },
+
+        {
+          text: 'Yes, Cancel',
           style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log(item,"=i2===================")
-              const res = await returnOrder({
-                order_id: item.order_id,
-                sub_id:   item.sub_id,
-                user_id:  item.user_id,
-              });
-              console.log(res,"============================>>>return")
 
-              if (res?.data?.success) {
-                const returnData = res.data.data;
+          onPress:
+            async () => {
 
-                // Update both lists
-                const updater = (prev: any[]) =>
-                  prev.map((o) =>
-                    o.order_id === item.order_id
-                      ? { ...o, rawStatus: 'returned', status: 'completed' }
-                      : o
+              const payload = {
+
+                order_id:
+                  item.order_id,
+
+                sub_id:
+                  item.sub_id,
+
+                user_id:
+                  item.user_id,
+
+              };
+
+
+              try {
+
+                const res =
+                  await cancelOrder(
+                    payload
                   );
-                setAllOrders(updater);
-                setOrderData(updater);
 
-                // Show return details
-                Alert.alert(
-                  '✅ Return Initiated',
-                  `Return Order ID: ${returnData.order_id}\nShipment ID: ${returnData.shipment_id}\nStatus: ${returnData.status}\nCompany: ${returnData.company_name}`,
-                  [{ text: 'OK' }]
+
+                if (
+                  res?.data?.success
+                ) {
+
+                  const updater =
+                    (
+                      prev: any[]
+                    ) =>
+                      prev.map(
+                        (
+                          order
+                        ) => {
+
+                          if (
+                            order.order_id ===
+                            item.order_id
+                          ) {
+
+                            return {
+                              ...order,
+
+                              rawStatus:
+                                'cancelled',
+
+                              status:
+                                'ongoing',
+
+                              trackorder:
+                                false,
+
+                            };
+                          }
+
+                          return order;
+                        }
+                      );
+
+
+                  setAllOrders(
+                    updater
+                  );
+
+                  setOrderData(
+                    updater
+                  );
+
+
+                  Alert.alert(
+                    'Success',
+                    'Order cancelled successfully'
+                  );
+
+                } else {
+
+                  Alert.alert(
+                    'Error',
+                    res?.data?.message ||
+                    'Something went wrong'
+                  );
+                }
+
+              } catch (
+              error: any
+              ) {
+
+                console.log(
+                  error
                 );
-              } else {
-                Alert.alert('Error', res?.data?.message || 'Something went wrong');
+
+                Alert.alert(
+                  'Error',
+                  error?.response
+                    ?.data
+                    ?.message ||
+                  'Request failed'
+                );
               }
-            } catch (error: any) {
-              Alert.alert('Error', error?.response?.data?.message || 'Request failed');
-            }
-          },
+            },
         },
       ]
     );
   };
 
+
+  // =========================================================
+  // RETURN ORDER
+  // =========================================================
+
+  const handleReturn = (
+    index: number
+  ) => {
+
+    const item =
+      orderData[index];
+
+
+    if (!item) {
+      return;
+    }
+
+
+    Alert.alert(
+      'Return Order',
+      'Are you sure you want to return this order?',
+
+      [
+        {
+          text: 'No',
+          style: 'cancel',
+        },
+
+        {
+          text: 'Yes, Return',
+          style: 'destructive',
+
+          onPress:
+            async () => {
+
+              try {
+
+                const res =
+                  await returnOrder({
+
+                    order_id:
+                      item.order_id,
+
+                    sub_id:
+                      item.sub_id,
+
+                    user_id:
+                      item.user_id,
+
+                  });
+
+
+                console.log(
+                  res,
+                  '================ RETURN'
+                );
+
+
+                if (
+                  res?.data?.success
+                ) {
+
+                  const returnData =
+                    res.data.data;
+
+
+                  const updater =
+                    (
+                      prev: any[]
+                    ) =>
+                      prev.map(
+                        (
+                          order
+                        ) => {
+
+                          if (
+                            order.order_id ===
+                            item.order_id
+                          ) {
+
+                            return {
+
+                              ...order,
+
+                              rawStatus:
+                                'returned',
+
+                              status:
+                                'completed',
+
+                              isReturned:
+                                true,
+
+                              isDelivered:
+                                false,
+
+                              trackorder:
+                                false,
+
+                              completed:
+                                true,
+
+                            };
+                          }
+
+                          return order;
+                        }
+                      );
+
+
+                  setAllOrders(
+                    updater
+                  );
+
+                  setOrderData(
+                    updater
+                  );
+
+
+                  Alert.alert(
+
+                    'Return Initiated',
+
+                    `Return Order ID: ${returnData?.order_id ||
+                    '-'
+                    }\n\nShipment ID: ${returnData?.shipment_id ||
+                    '-'
+                    }\n\nStatus: ${returnData?.status ||
+                    '-'
+                    }\n\nCompany: ${returnData?.company_name ||
+                    '-'
+                    }`,
+
+                    [
+                      {
+                        text: 'OK',
+                      },
+                    ]
+                  );
+
+                } else {
+
+                  Alert.alert(
+                    'Error',
+                    res?.message ||
+                    'Something went wrong'
+                  );
+                }
+
+              } catch (
+              error: any
+              ) {
+
+                console.log(
+                  error
+                );
+
+                Alert.alert(
+                  'Error',
+                  error?.response
+                    ?.data
+                    ?.message ||
+                  'Request failed'
+                );
+              }
+            },
+        },
+      ]
+    );
+  };
+
+
+  // =========================================================
+  // LOADING
+  // =========================================================
+
   if (loading) {
+
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+
+      <View
+        style={[
+          styles.loadingContainer,
+          {
+            backgroundColor:
+              colors.background,
+          },
+        ]}
+      >
+
+        <View
+          style={[
+            styles.loadingIcon,
+            {
+              backgroundColor:
+                COLORS.primaryLight,
+            },
+          ]}
+        >
+
+          <FeatherIcon
+            name="shopping-bag"
+            size={25}
+            color={COLORS.primary}
+          />
+
+        </View>
+
+        <ActivityIndicator
+          size="small"
+          color={COLORS.primary}
+        />
+
+        <Text
+          style={[
+            FONTS.fontRegular,
+            styles.loadingText,
+            {
+              color: colors.text,
+            },
+          ]}
+        >
+          Loading your orders...
+        </Text>
+
       </View>
     );
   }
 
-  return (
-    <View style={{ backgroundColor: colors.background, flex: 1 }}>
-      <Header title="My Order" leftIcon="back" titleRight />
 
-      {/* ── Top Filter Bar ── */}
-      <View
-        style={{
-          padding: 0,
-          backgroundColor: theme.dark ? 'rgba(255,255,255,.1)' : colors.card,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.35,
-          shadowRadius: 6.27,
-          elevation: 5,
-          height: 40,
-          width: '100%',
-        }}
+  // =========================================================
+  // FILTER BUTTON
+  // =========================================================
+
+  const renderFilterButton = (
+    key: string,
+    label: string,
+    icon: string,
+    count: number
+  ) => {
+
+    const active =
+      activeFilter === key;
+
+
+    return (
+
+      <TouchableOpacity
+        key={key}
+        onPress={() =>
+          filterData(key)
+        }
+        activeOpacity={0.8}
+
+        style={[
+          styles.filterButton,
+
+          active && {
+            backgroundColor:
+              COLORS.primary,
+          },
+        ]}
       >
-        <View style={GlobalStyleSheet.flex}>
-          <TouchableOpacity
-            onPress={() => filterData('all')}
-            style={{ width: '20%', justifyContent: 'center', alignItems: 'center' }}
+
+        <FeatherIcon
+          name={icon}
+          size={14}
+
+          color={
+            active
+              ? '#FFFFFF'
+              : colors.text
+          }
+        />
+
+        <Text
+          style={[
+            styles.filterText,
+
+            {
+              color:
+                active
+                  ? '#FFFFFF'
+                  : colors.text,
+            },
+          ]}
+        >
+          {label}
+        </Text>
+
+        <View
+          style={[
+            styles.countBadge,
+
+            active && {
+              backgroundColor:
+                'rgba(255,255,255,0.20)',
+            },
+          ]}
+        >
+
+          <Text
+            style={[
+              styles.countText,
+
+              {
+                color:
+                  active
+                    ? '#FFFFFF'
+                    : colors.text,
+              },
+            ]}
           >
-            <Text style={[FONTS.fontMedium, { fontSize: 15, color: activeFilter === 'all' ? COLORS.primary : colors.title }]}>
-              All
-            </Text>
-          </TouchableOpacity>
+            {count}
+          </Text>
 
-          <View style={{ width: 1, height: 40, backgroundColor: COLORS.primaryLight }} />
-
-          <TouchableOpacity onPress={() => filterData('ongoing')} activeOpacity={0.5} style={styles.TopbarCenterLine}>
-            <Image
-              style={{ height: 16, width: 16, resizeMode: 'contain', tintColor: activeFilter === 'ongoing' ? COLORS.primary : colors.title }}
-              source={IMAGES.deliverytruck2}
-            />
-            <Text style={[FONTS.fontMedium, { fontSize: 15, color: activeFilter === 'ongoing' ? COLORS.primary : colors.title }]}>
-              Ongoing
-            </Text>
-          </TouchableOpacity>
-
-          <View style={{ width: 1, height: 40, backgroundColor: COLORS.primaryLight }} />
-
-          <TouchableOpacity onPress={() => filterData('completed')} activeOpacity={0.5} style={styles.TopbarCenterLine}>
-            <Image
-              style={{ height: 16, width: 16, resizeMode: 'contain', tintColor: activeFilter === 'completed' ? COLORS.primary : colors.title }}
-              source={IMAGES.savecheck}
-            />
-            <Text style={[FONTS.fontMedium, { fontSize: 15, color: activeFilter === 'completed' ? COLORS.primary : colors.title }]}>
-              Completed
-            </Text>
-          </TouchableOpacity>
         </View>
+
+      </TouchableOpacity>
+    );
+  };
+
+
+  // =========================================================
+  // MAIN
+  // =========================================================
+
+  return (
+
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor:
+            colors.background,
+        },
+      ]}
+    >
+
+      {/* ================================================= */}
+      {/* HEADER */}
+      {/* ================================================= */}
+
+      <Header
+        title="My Orders"
+        leftIcon="back"
+        titleRight
+      />
+
+
+      {/* ================================================= */}
+      {/* FILTER */}
+      {/* ================================================= */}
+
+      <View
+        style={[
+          styles.filterWrapper,
+
+          {
+            backgroundColor:
+              theme.dark
+                ? 'rgba(255,255,255,0.06)'
+                : '#F1F5F9',
+          },
+        ]}
+      >
+
+        {renderFilterButton(
+          'all',
+          'All',
+          'list',
+          allCount
+        )}
+
+        {renderFilterButton(
+          'ongoing',
+          'Ongoing',
+          'truck',
+          ongoingCount
+        )}
+
+        {renderFilterButton(
+          'completed',
+          'Completed',
+          'check-circle',
+          completedCount
+        )}
+
       </View>
 
-      {/* ── Orders List ── */}
-      <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: orderData.length === 0 ? 'center' : 'flex-start' }}>
-        <View style={[GlobalStyleSheet.container, { paddingTop: 15 }]}>
-          <View style={{ marginHorizontal: -15 }}>
 
-            {orderData.length > 0 ? (
-              orderData.map((data: any, index: number) => {
-                const isDelivered = (data.rawStatus || '').toLowerCase() === 'delivered';
-                const isReturned  = (data.rawStatus || '').toLowerCase() === 'returned';
+      {/* ================================================= */}
+      {/* ORDER LIST */}
+      {/* ================================================= */}
+
+      <ScrollView
+
+        showsVerticalScrollIndicator={false}
+
+        contentContainerStyle={[
+          styles.scrollContent,
+
+          orderData.length === 0 &&
+          styles.emptyScroll,
+        ]}
+
+        refreshControl={
+
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={
+              COLORS.primary
+            }
+            colors={[
+              COLORS.primary,
+            ]}
+          />
+
+        }
+      >
+
+        {orderData.length > 0 ? (
+
+          <View style={styles.ordersContainer}>
+
+            {/* SMALL RESULT TEXT */}
+
+            <View
+              style={styles.resultHeader}
+            >
+
+              <Text
+                style={[
+                  FONTS.fontRegular,
+                  styles.resultText,
+                  {
+                    color:
+                      colors.text,
+                  },
+                ]}
+              >
+                {orderData.length}{' '}
+                {orderData.length === 1
+                  ? 'order'
+                  : 'orders'}
+              </Text>
+
+            </View>
+
+
+            {/* ORDERS */}
+
+            {orderData.map(
+              (
+                data: any,
+                index: number
+              ) => {
+
+                const isDelivered =
+                  (
+                    data.rawStatus ||
+                    ''
+                  ).toLowerCase() ===
+                  'delivered';
+
+                const isReturned =
+                  (
+                    data.rawStatus ||
+                    ''
+                  ).toLowerCase() ===
+                  'returned';
+
 
                 return (
-                  <View key={index} style={{ marginBottom: 10 }}>
-                    <Cardstyle2
-                      title={data.title}
-                      price={data.price}
-                      delevery={data.delevery}
-                      image={data.image}
-                      offer={data.offer}
-                      brand={data.brand}
-                      btntitle={data.btntitle}
-                      trackorder={data.trackorder}
-                      completed={data.completed}
-                      EditReview={data.EditReview}
 
-                      // ✅ Pass delivered so Return Order button shows
-                      delivered={isDelivered && !isReturned}
-                      onPressReturn={() => handleReturn(index)}
+                  <Cardstyle2
 
-                      onPress2={() => navigation.navigate('Trackorder')}
-                      onPress3={() => navigation.navigate('Writereview')}
-                      onPress4={() => removeItem(index)}
-                      closebtn
-                    />
-                  </View>
-                );
-              })
-            ) : (
-              <View style={[GlobalStyleSheet.container, { padding: 0 }]}>
-                <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 60 }}>
-                  <View
-                    style={{
-                      height: 60, width: 60, borderRadius: 60,
-                      alignItems: 'center', justifyContent: 'center',
-                      backgroundColor: COLORS.primaryLight, marginBottom: 20,
+                    key={
+                      `${data.order_id}-${data.sub_id}-${index}`
+                    }
+
+
+
+                    id={
+                      data.product_id ||
+                      data.sub_id ||
+                      data.order_id ||
+                      ''
+                    }
+
+                    quantity={
+                      data.quantity ||
+                      '1'
+                    }
+
+                    title={
+                      data.title
+                    }
+
+                    price={
+                      data.price
+                    }
+
+                    image={
+                      data.image
+                    }
+
+                    brand={
+                      data.brand
+                    }
+
+                    discount={
+                      data.discount
+                    }
+
+                    offer={
+                      data.offer
+                    }
+
+
+
+                    delevery={
+                      data.delevery
+                    }
+
+
+
+                    trackorder={
+                      data.trackorder
+                    }
+
+                    completed={
+                      data.completed
+                    }
+
+                    delivered={
+                      isDelivered &&
+                      !isReturned
+                    }
+
+
+
+                    onPress={() => {
+
+                      console.log(
+                        'Order pressed:',
+                        data
+                      );
+
                     }}
-                  >
-                    <FeatherIcon color={COLORS.primary} size={24} name="shopping-cart" />
-                  </View>
-                  <Text style={{ ...FONTS.h5, color: colors.title, marginBottom: 8 }}>Your My Order is Empty!</Text>
-                  <Text style={{ ...FONTS.fontSm, color: colors.text, textAlign: 'center', paddingHorizontal: 40 }}>
-                    Add Product to your cart and shop now.
-                  </Text>
-                </View>
-              </View>
+
+
+
+                    onPress2={() =>
+                      navigation.navigate(
+                        'Trackorder'
+                      )
+                    }
+
+
+
+                    onPress3={() =>
+                      navigation.navigate(
+                        'Writereview'
+                      )
+                    }
+
+
+
+                    onPress4={() =>
+                      removeItem(
+                        index
+                      )
+                    }
+
+
+
+                    onPressReturn={() =>
+                      handleReturn(
+                        index
+                      )
+                    }
+
+                  />
+
+                );
+              }
             )}
 
           </View>
-        </View>
+
+        ) : (
+
+          /* ================================================= */
+          /* EMPTY */
+          /* ================================================= */
+
+          <View
+            style={[
+              styles.emptyContainer,
+            ]}
+          >
+
+            <View
+              style={[
+                styles.emptyIcon,
+                {
+                  backgroundColor:
+                    COLORS.primaryLight,
+                },
+              ]}
+            >
+
+              <FeatherIcon
+                name="package"
+                size={34}
+                color={
+                  COLORS.primary
+                }
+              />
+
+            </View>
+
+
+            <Text
+              style={[
+                FONTS.h5,
+                styles.emptyTitle,
+                {
+                  color:
+                    colors.title,
+                },
+              ]}
+            >
+              No orders found
+            </Text>
+
+
+            <Text
+              style={[
+                FONTS.fontRegular,
+                styles.emptyDescription,
+                {
+                  color:
+                    colors.text,
+                },
+              ]}
+            >
+              {activeFilter ===
+                'ongoing'
+                ? 'You have no ongoing orders right now.'
+                : activeFilter ===
+                  'completed'
+                  ? 'You have no completed orders yet.'
+                  : 'You haven’t placed any orders yet.'}
+            </Text>
+
+          </View>
+
+        )}
+
       </ScrollView>
+
     </View>
   );
 };
 
+
+// =============================================================
+// STYLES
+// =============================================================
+
 const styles = StyleSheet.create({
-  TopbarCenterLine: {
-    flexDirection: 'row',
+
+  // =========================================================
+  // CONTAINER
+  // =========================================================
+
+  container: {
+    flex: 1,
+  },
+
+
+  // =========================================================
+  // LOADING
+  // =========================================================
+
+  loadingContainer: {
+    flex: 1,
+
     alignItems: 'center',
-    gap: 5,
-    width: '40%',
     justifyContent: 'center',
   },
+
+  loadingIcon: {
+    width: 65,
+    height: 65,
+
+    borderRadius: 33,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    marginBottom: 18,
+  },
+
+  loadingText: {
+    marginTop: 10,
+
+    fontSize: 13,
+
+    opacity: 0.7,
+  },
+
+
+  // =========================================================
+  // FILTER
+  // =========================================================
+
+  filterWrapper: {
+    flexDirection: 'row',
+
+    marginHorizontal: 15,
+
+    marginTop: 10,
+    marginBottom: 5,
+
+    padding: 4,
+
+    borderRadius: 14,
+  },
+
+  filterButton: {
+    flex: 1,
+
+    height: 42,
+
+    borderRadius: 11,
+
+    flexDirection: 'row',
+
+    alignItems: 'center',
+
+    justifyContent: 'center',
+
+    gap: 5,
+  },
+
+  filterText: {
+    fontSize: 12,
+
+    fontWeight: '600',
+  },
+
+  countBadge: {
+    minWidth: 20,
+
+    height: 20,
+
+    paddingHorizontal: 5,
+
+    borderRadius: 10,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  countText: {
+    fontSize: 10,
+
+    fontWeight: '700',
+  },
+
+
+  // =========================================================
+  // SCROLL
+  // =========================================================
+
+  scrollContent: {
+    paddingTop: 5,
+
+    paddingBottom: 30,
+  },
+
+  emptyScroll: {
+    flexGrow: 1,
+  },
+
+
+  // =========================================================
+  // ORDERS
+  // =========================================================
+
+  ordersContainer: {
+    paddingTop: 2,
+  },
+
+  resultHeader: {
+    paddingHorizontal: 18,
+
+    paddingTop: 8,
+
+    paddingBottom: 8,
+  },
+
+  resultText: {
+    fontSize: 12,
+
+    opacity: 0.65,
+  },
+
+
+  // =========================================================
+  // EMPTY
+  // =========================================================
+
+  emptyContainer: {
+    flex: 1,
+
+    alignItems: 'center',
+
+    justifyContent: 'center',
+
+    paddingHorizontal: 20,
+  },
+
+  emptyIcon: {
+    width: 82,
+    height: 82,
+
+    borderRadius: 41,
+
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    marginBottom: 20,
+  },
+
+  emptyTitle: {
+    marginBottom: 8,
+  },
+
+  emptyDescription: {
+    fontSize: 13,
+
+    lineHeight: 20,
+
+    textAlign: 'center',
+
+    maxWidth: 290,
+
+    opacity: 0.7,
+  },
+
 });
+
 
 export default Myorder;

@@ -16,6 +16,7 @@ import { addTowishList } from '../../redux/reducer/wishListReducer';
 import { abs2Databanner, absDatabanner, brandbanner, HomeBanner } from '../../Api/Banner';
 import { productList, VideoApi } from '../../Api/Product';
 import { WebView } from 'react-native-webview';
+import VideoPlayer from './VideoPlayer';
 
 const offerData = [
     {
@@ -452,7 +453,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 5 }}>
                         {videoData.map((video, index) => (
                             <View style={styles.videoContainer} key={video._id || index}>
-                                <WebView style={styles.webview} javaScriptEnabled={true} domStorageEnabled={true} source={{ uri: video.live_link }} />
+            <VideoPlayer key={video._id || index} uri={video.live_link} />
                             </View>
                         ))}
                     </ScrollView>
@@ -528,7 +529,7 @@ const Home = ({ navigation }: HomeScreenProps) => {
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 5 }}>
                         {videoData.map((video, index) => (
                             <View style={styles.videoContainer} key={video._id || index}>
-                                <WebView style={styles.webview} javaScriptEnabled={true} domStorageEnabled={true} source={{ uri: video.live_link }} />
+            <VideoPlayer key={video._id || index} uri={video.live_link} />
                             </View>
                         ))}
                     </ScrollView>
